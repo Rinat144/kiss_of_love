@@ -3,17 +3,24 @@
 namespace App\Services\City;
 
 use App\Services\City\Repositories\CityRepository;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class CityService
 {
-    private CityRepository $cityRepository;
-
     /**
      * @param CityRepository $cityRepository
      */
-    public function __construct(CityRepository $cityRepository)
+    public function __construct(
+        private readonly CityRepository $cityRepository
+    )
     {
-        $this->cityRepository = $cityRepository;
     }
 
+    /**
+     * @return LengthAwarePaginator
+     */
+    public function getAllCities(): LengthAwarePaginator
+    {
+        return $this->cityRepository->getAllCities();
+    }
 }

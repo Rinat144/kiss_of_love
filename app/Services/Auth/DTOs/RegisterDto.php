@@ -2,7 +2,7 @@
 
 namespace App\Services\Auth\DTOs;
 
-class RegisterDTO
+class RegisterDto
 {
     /**
      * @param string $name

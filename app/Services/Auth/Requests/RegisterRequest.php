@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Requests\Auth;
+namespace App\Services\Auth\Requests;
 
-use App\Services\Auth\DTOs\RegisterDTO;
+use App\Models\City;
+use App\Services\Auth\DTOs\RegisterDto;
 use App\Services\Auth\Enum\GenderSelectionEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -30,19 +31,18 @@ class RegisterRequest extends FormRequest
             'name' => ['required', 'max:15'],
             'login' => ['required', 'min:8', 'max:32'],
             'date_of_birth' => ['required', 'date_format:d-m-Y', 'before:today'],
-            'city_id' => ['required', 'integer', 'exists:App\Models\City,id'],
-            'balance' => ['integer'],
+            'city_id' => ['required', 'integer', 'exists:' . City::class . ',id'],
             'gender' => ['required', Rule::in(array_column(GenderSelectionEnum::cases(), 'value'))],
             'password' => ['required', 'string', 'confirmed', 'min:6', 'max:120'],
         ];
     }
 
     /**
-     * @return RegisterDTO
+     * @return RegisterDto
      */
-    public function getDto(): RegisterDTO
+    public function getDto(): RegisterDto
     {
-        return new RegisterDTO(
+        return new RegisterDto(
             name: $this->get('name'),
             date_of_birth: $this->get('date_of_birth'),
             gender: $this->get('gender'),

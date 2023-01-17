@@ -2,7 +2,7 @@
 
 namespace App\Services\Auth\Enum;
 
-enum GenderSelectionEnum:string
+enum GenderSelectionEnum: string
 {
     case MAN = 'man';
     case WOMAN = 'woman';

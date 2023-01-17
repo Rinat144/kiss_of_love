@@ -2,27 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Auth\LoginRequest;
-use App\Http\Requests\Auth\RegisterRequest;
 use App\Services\Auth\AuthService;
+use App\Services\Auth\Requests\LoginRequest;
+use App\Services\Auth\Requests\RegisterRequest;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
 
 class AuthController extends Controller
 {
-    private AuthService $authService;
+    const TOKEN_EXPIRATION_TIME = 60;
 
     /**
      * @param AuthService $authService
      */
-    public function __construct(AuthService $authService)
+    public function __construct(
+        private readonly AuthService $authService
+    )
     {
-        $this->authService = $authService;
         $this->middleware('auth:api', ['except' => ['login', 'register']]);
     }
 
     /**
      * @param LoginRequest $loginRequest
      * @return JsonResponse
+     * @throws AuthenticationException
      */
     public function login(LoginRequest $loginRequest): JsonResponse
     {
@@ -37,11 +40,10 @@ class AuthController extends Controller
      */
     public function register(RegisterRequest $authRequest): JsonResponse
     {
-        $authData = $this->authService->register($authRequest->getDto());
+        $this->authService->register($authRequest->getDto());
 
         return response()->json([
-            'message' => 'User successfully registered',
-            'user' => $authData
+            'status' => true
         ], 201);
     }
 
@@ -53,7 +55,10 @@ class AuthController extends Controller
     public function logout(): JsonResponse
     {
         auth()->logout();
-        return response()->json(['message' => 'User successfully signed out']);
+
+        return response()->json([
+            'status' => true
+        ]);
     }
 
     /**
@@ -85,7 +90,7 @@ class AuthController extends Controller
         return response()->json([
             'access_token' => $tokenData,
             'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60,
+            'expires_in' => auth()->factory()->getTTL() * self::TOKEN_EXPIRATION_TIME,
             'user' => auth()->user()
         ]);
     }

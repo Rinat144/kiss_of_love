@@ -2,44 +2,45 @@
 
 namespace App\Services\Auth;
 
-use App\Http\Requests\Auth\LoginRequest;
-use App\Services\Auth\DTOs\RegisterDTO;
+use App\Services\Auth\DTOs\RegisterDto;
 use App\Services\Auth\Repositories\AuthRepository;
+use App\Services\Auth\Requests\LoginRequest;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
 class AuthService
 {
-    private AuthRepository $authRepository;
-
     /**
      * @param AuthRepository $authRepository
      */
-    public function __construct(AuthRepository $authRepository)
+    public function __construct(
+        private readonly AuthRepository $authRepository
+    )
     {
-        $this->authRepository = $authRepository;
     }
 
     /**
-     * @param RegisterDTO $authDTO
+     * @param RegisterDto $authDTO
      * @return Model|Builder
      */
-    public function register(RegisterDTO $authDTO): Model|Builder
+    public function register(RegisterDto $authDTO): Model|Builder
     {
         return $this->authRepository->register($authDTO);
     }
 
     /**
      * @param LoginRequest $loginRequest
-     * @return JsonResponse|string
+     * @return string
+     * @throws AuthenticationException
      */
-    public function login(LoginRequest $loginRequest): JsonResponse|string
+    public function login(LoginRequest $loginRequest): string
     {
         if (!$token = Auth::attempt($loginRequest->validated())) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            throw new AuthenticationException();
         }
+
         return $token;
     }
 }

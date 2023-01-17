@@ -3,17 +3,17 @@
 namespace App\Services\Auth\Repositories;
 
 use App\Models\User;
-use App\Services\Auth\DTOs\RegisterDTO;
+use App\Services\Auth\DTOs\RegisterDto;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class AuthRepository
 {
     /**
-     * @param RegisterDTO $authDTO
+     * @param RegisterDto $authDTO
      * @return Model|Builder
      */
-    public function register(RegisterDTO $authDTO): Model|Builder
+    public function register(RegisterDto $authDTO): Model|Builder
     {
         return User::query()->create([
             'name' => $authDTO->name,
