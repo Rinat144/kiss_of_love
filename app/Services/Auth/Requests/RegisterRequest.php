@@ -28,7 +28,7 @@ class RegisterRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required', 'max:15'],
+            'name' => ['required', 'string', 'max:15'],
             'login' => ['required', 'min:8', 'max:32'],
             'date_of_birth' => ['required', 'date_format:d-m-Y', 'before:today'],
             'city_id' => ['required', 'integer', 'exists:' . City::class . ',id'],

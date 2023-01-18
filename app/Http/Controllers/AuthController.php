@@ -10,7 +10,7 @@ use Illuminate\Http\JsonResponse;
 
 class AuthController extends Controller
 {
-    const TOKEN_EXPIRATION_TIME = 60;
+    private const TOKEN_EXPIRATION_TIME = 60;
 
     /**
      * @param AuthService $authService
@@ -82,7 +82,7 @@ class AuthController extends Controller
     }
 
     /**
-     * @param $token
+     * @param $tokenData
      * @return JsonResponse
      */
     protected function createNewToken($tokenData): JsonResponse
