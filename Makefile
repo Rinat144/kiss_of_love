@@ -2,7 +2,6 @@ buildapp:
 	docker-compose run --rm php php artisan optimize
 	docker-compose run --rm php php artisan optimize:clear
 	docker-compose run --rm php php artisan jwt:secret
-	docker-compose run --rm php php artisan jwt:secret
 	make permissions
 
 down:
