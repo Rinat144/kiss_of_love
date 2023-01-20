@@ -30,7 +30,7 @@ class RegisterRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:15'],
             'login' => ['required', 'min:8', 'max:32'],
-            'date_of_birth' => ['required', 'date_format:d-m-Y', 'before:today'],
+            'date_of_birth' => ['required', 'date_format:Y-m-d', 'before:today'],
             'city_id' => ['required', 'integer', 'exists:' . City::class . ',id'],
             'gender' => ['required', Rule::in(array_column(GenderSelectionEnum::cases(), 'value'))],
             'password' => ['required', 'string', 'confirmed', 'min:6', 'max:120'],
