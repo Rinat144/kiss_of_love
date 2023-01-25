@@ -12,7 +12,7 @@ class CreateGameRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    final public function authorize(): bool
     {
         return true;
     }
@@ -22,17 +22,17 @@ class CreateGameRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
-    public function rules()
+    final public function rules(): array
     {
         return [
-            'question' => ['string'],
+            'question' => ['required', 'string'],
         ];
     }
 
     /**
      * @return CreateGameDto
      */
-    public function getDto(): CreateGameDto
+    final public function getDto(): CreateGameDto
     {
         return new CreateGameDto(
             question: $this->get('question'),

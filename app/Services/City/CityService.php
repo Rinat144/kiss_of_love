@@ -3,23 +3,23 @@
 namespace App\Services\City;
 
 use App\Services\City\Repositories\CityRepository;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 
-class CityService
+readonly class CityService
 {
     /**
      * @param CityRepository $cityRepository
      */
     public function __construct(
-        private readonly CityRepository $cityRepository
+        private CityRepository $cityRepository
     )
     {
     }
 
     /**
-     * @return LengthAwarePaginator
+     * @return Collection|array
      */
-    public function getAllCities(): LengthAwarePaginator
+    final public function getAllCities(): Collection|array
     {
         return $this->cityRepository->getAllCities();
     }

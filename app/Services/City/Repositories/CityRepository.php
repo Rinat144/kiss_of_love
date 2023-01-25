@@ -3,17 +3,15 @@
 namespace App\Services\City\Repositories;
 
 use App\Models\City;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 
 class CityRepository
 {
-    private const NUMBER_OF_ELEMENTS_FOR_PAGINATION = 20;
-
     /**
-     * @return LengthAwarePaginator
+     * @return Collection|array
      */
-    public function getAllCities(): LengthAwarePaginator
+    final public function getAllCities(): Collection|array
     {
-        return City::query()->select('id', 'city')->paginate(self::NUMBER_OF_ELEMENTS_FOR_PAGINATION);
+        return City::query()->select('id', 'city')->get();
     }
 }

@@ -6,6 +6,13 @@ use App\Services\Game\Enum\StatusGameEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int|mixed|string|null $fourth_user_id
+ * @property false|mixed|string $fourth_user_info
+ * @property int|mixed $status
+ * @property int|mixed|string|null $first_user_id
+ * @property false|mixed|string $first_user_info
+ */
 class Game extends Model
 {
     use HasFactory;

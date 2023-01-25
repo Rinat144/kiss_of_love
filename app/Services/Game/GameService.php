@@ -6,8 +6,9 @@ use App\Models\Game;
 use App\Services\Auth\Enum\GenderSelectionEnum;
 use App\Services\Game\Repositories\GameRepository;
 use App\Services\Game\Requests\CreateGameRequest;
+use JsonException;
 
-class GameService
+readonly class GameService
 {
     /**
      * @param GameRepository $gameRepository
@@ -21,13 +22,14 @@ class GameService
     /**
      * @param CreateGameRequest $createGameRequest
      * @return Game
+     * @throws JsonException
      */
-    public function createGame(CreateGameRequest $createGameRequest): Game
+    final public function createGame(CreateGameRequest $createGameRequest): Game
     {
         if ($createGameRequest->user()->gender === GenderSelectionEnum::MAN) {
             return $this->gameRepository->createGameMan($createGameRequest->getDto());
-        } else {
-            return $this->gameRepository->createGameWoman($createGameRequest->getDto());
         }
+
+        return $this->gameRepository->createGameWoman($createGameRequest->getDto());
     }
 }

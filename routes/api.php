@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Route;
 Route::group([
     'middleware' => 'api',
     'prefix' => 'auth'
-], function ($router) {
-    Route::post('/login', [AuthController::class, 'login'])->name('login');
+], static function () {
+    Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/refresh', [AuthController::class, 'refresh']);
@@ -18,13 +18,14 @@ Route::group([
 
 Route::group([
     'prefix' => 'city',
-], function () {
+], static function () {
     Route::get('/all', [CityController::class, 'getAllCities']);
 }
 );
 
 Route::group([
     'prefix' => 'match',
-], function () {
+    'middleware' => 'auth:api'
+], static function () {
     Route::post('/create', [GameController::class, 'createGame']);
 });

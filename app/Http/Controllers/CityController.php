@@ -20,7 +20,7 @@ class CityController extends Controller
     /**
      * @return AnonymousResourceCollection
      */
-    public function getAllCities(): AnonymousResourceCollection
+    final public function getAllCities(): AnonymousResourceCollection
     {
         $allCities = $this->cityService->getAllCities();
 

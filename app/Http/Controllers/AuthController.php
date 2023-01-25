@@ -27,7 +27,7 @@ class AuthController extends Controller
      * @return JsonResponse
      * @throws AuthenticationException
      */
-    public function login(LoginRequest $loginRequest): JsonResponse
+    final public function login(LoginRequest $loginRequest): JsonResponse
     {
         $tokenData = $this->authService->login($loginRequest);
 
@@ -38,7 +38,7 @@ class AuthController extends Controller
      * @param RegisterRequest $authRequest
      * @return JsonResponse
      */
-    public function register(RegisterRequest $authRequest): JsonResponse
+    final public function register(RegisterRequest $authRequest): JsonResponse
     {
         $this->authService->register($authRequest->getDto());
 
@@ -52,7 +52,7 @@ class AuthController extends Controller
      *
      * @return JsonResponse
      */
-    public function logout(): JsonResponse
+    final public function logout(): JsonResponse
     {
         auth()->logout();
 
@@ -66,7 +66,7 @@ class AuthController extends Controller
      *
      * @return JsonResponse
      */
-    public function refresh(): JsonResponse
+    final public function refresh(): JsonResponse
     {
         return $this->createNewToken(auth()->refresh());
     }
@@ -76,16 +76,16 @@ class AuthController extends Controller
      *
      * @return JsonResponse
      */
-    public function userProfile(): JsonResponse
+    final public function userProfile(): JsonResponse
     {
         return response()->json(auth()->user());
     }
 
     /**
-     * @param $tokenData
+     * @param string $tokenData
      * @return JsonResponse
      */
-    protected function createNewToken($tokenData): JsonResponse
+    private function createNewToken(string $tokenData): JsonResponse
     {
         return response()->json([
             'access_token' => $tokenData,
