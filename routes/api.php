@@ -28,4 +28,5 @@ Route::group([
     'middleware' => 'auth:api'
 ], static function () {
     Route::post('/create', [GameController::class, 'createGame']);
+    Route::get('/info/{gameId}', [GameController::class, 'getInfoTheGame']);
 });
