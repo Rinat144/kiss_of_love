@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Game;
+use App\Services\Game\Exception\NotFoundGameException;
 use App\Services\Game\GameService;
 use App\Services\Game\Requests\CreateGameRequest;
 use App\Services\Game\Resources\GameResource;
 use Illuminate\Http\JsonResponse;
-use JsonException;
 
 class GameController extends Controller
 {
@@ -23,11 +23,10 @@ class GameController extends Controller
     /**
      * @param CreateGameRequest $createGameRequest
      * @return JsonResponse
-     * @throws JsonException
      */
     final public function createGame(CreateGameRequest $createGameRequest): JsonResponse
     {
-        $game = $this->gameService->createGame($createGameRequest);
+        $game = $this->gameService->createGame($createGameRequest->getDto());
 
         return response()->json([
             $game
@@ -35,11 +34,25 @@ class GameController extends Controller
     }
 
     /**
-     * @param Game $gameId
+     * @param Game $game
      * @return GameResource
      */
-    final public function getInfoTheGame(Game $gameId): GameResource
+    final public function getInfoTheGame(Game $game): GameResource
     {
-        return new GameResource($gameId);
+        return new GameResource($game);
+    }
+
+    /**
+     * @param CreateGameRequest $createGameRequest
+     * @return JsonResponse
+     * @throws NotFoundGameException
+     */
+    final public function searchActiveGame(CreateGameRequest $createGameRequest): JsonResponse
+    {
+        $this->gameService->searchActiveGame($createGameRequest->getDto());
+
+        return response()->json([
+            true
+        ]);
     }
 }

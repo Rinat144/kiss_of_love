@@ -12,6 +12,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property int|mixed $status
  * @property int|mixed|string|null $first_user_id
  * @property false|mixed|string $first_user_info
+ * @property mixed $fifth_user_id
+ * @property mixed $sixth_user_id
+ * @property mixed $second_user_id
+ * @property mixed $third_user_id
  */
 class Game extends Model
 {
@@ -40,6 +44,12 @@ class Game extends Model
      * @var string[]
      */
     protected $casts = [
-        'status' => StatusGameEnum::class
+        'status' => StatusGameEnum::class,
+        'first_user_info' => 'array',
+        'second_user_info' => 'array',
+        'third_user_info' => 'array',
+        'fourth_user_info' => 'array',
+        'fifth_user_info' => 'array',
+        'sixth_user_info' => 'array',
     ];
 }
