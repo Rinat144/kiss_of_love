@@ -23,8 +23,9 @@ use JsonSerializable;
  * @property mixed $sixth_user_info
  * @property mixed $status
  * @property mixed $created_at
+ * @property mixed $updated_at
  */
-class GameResource extends JsonResource
+class SearchActiveGameResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -50,6 +51,7 @@ class GameResource extends JsonResource
             'sixth_user_info' => $this->sixth_user_info,
             'status' => $this->status,
             'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at
         ];
     }
 }

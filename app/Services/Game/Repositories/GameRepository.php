@@ -6,40 +6,41 @@ use App\Models\Game;
 use App\Services\Game\DTOs\CreateGameDto;
 use App\Services\Game\Enum\StatusGameEnum;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 class GameRepository
 {
     /**
      * @param CreateGameDto $dto
-     * @return true
+     * @return Game
      */
-    final public function createGameMan(CreateGameDto $dto): true
+    final public function createGameMan(CreateGameDto $dto): Game
     {
         $game = new Game();
 
         $game->fourth_user_id = auth()->id();
         $game->fourth_user_info = ['question' => $dto->question];
-        $game->status = StatusGameEnum::ACTIVE->value;
+        $game->status = StatusGameEnum::ACTIVE;
         $game->save();
 
-        return true;
+        return $game;
     }
 
     /**
      * @param CreateGameDto $dto
-     * @return true
+     * @return Game
      */
-    final public function createGameWoman(CreateGameDto $dto): true
+    final public function createGameWoman(CreateGameDto $dto): Game
     {
         $game = new Game();
 
         $game->first_user_id = auth()->id();
         $game->first_user_info = ['question' => $dto->question];
-        $game->status = StatusGameEnum::ACTIVE->value;
+        $game->status = StatusGameEnum::ACTIVE;
         $game->save();
 
-        return true;
+        return $game;
     }
 
     /**
@@ -79,13 +80,15 @@ class GameRepository
      * @param string $userInfoColumn
      * @param string $question
      * @param Game $game
-     * @return void
+     * @return Game
      */
-    final public function updateDataThePlayer(string $userIdColumn, string $userInfoColumn, string $question, Game $game): void
+    final public function updateDataThePlayer(string $userIdColumn, string $userInfoColumn, string $question, Game $game): Game
     {
         $game->{$userIdColumn} = auth()->id();
         $game->{$userInfoColumn} = ['question' => $question];
         $game->save();
+
+        return $game;
     }
 
     /**
@@ -94,7 +97,71 @@ class GameRepository
      */
     final public function changeTheStatusOfTheGame(Game $game): void
     {
-        $game->status = StatusGameEnum::PROCESS->value;
+        $game->status = StatusGameEnum::PROCESS;
         $game->save();
+    }
+
+    /**
+     * @param int $game
+     * @param int $userId
+     * @return Collection|array
+     */
+    final public function getInfoAboutTheMatchPlayed(int $game, int $userId): Collection|array
+    {
+        return Game::query()
+            ->where('id', '=', $game)
+            ->where(function ($query) use ($userId) {
+                $query->orWhere('first_user_id', '=', $userId)
+                    ->orWhere('second_user_id', '=', $userId)
+                    ->orWhere('third_user_id', '=', $userId)
+                    ->orWhere('fourth_user_id', '=', $userId)
+                    ->orWhere('fifth_user_id', '=', $userId)
+                    ->orWhere('sixth_user_id', '=', $userId);
+            })
+            ->get();
+    }
+
+    /**
+     * @param int $userId
+     * @return Model|Builder|null
+     */
+    final public function checkAnActiveGameForMan(int $userId): Model|Builder|null
+    {
+        return Game::query()
+            ->Where('status', '=', StatusGameEnum::ACTIVE)
+            ->where(function ($query) use ($userId) {
+                $query->orWhere('fourth_user_id', '=', $userId)
+                    ->orWhere('fifth_user_id', '=', $userId)
+                    ->orWhere('sixth_user_id', '=', $userId);
+            })
+            ->orWhere('status', '=', StatusGameEnum::PROCESS)
+            ->where(function ($query) use ($userId) {
+                $query->orWhere('fourth_user_id', '=', $userId)
+                    ->orWhere('fifth_user_id', '=', $userId)
+                    ->orWhere('sixth_user_id', '=', $userId);
+            })
+            ->first();
+    }
+
+    /**
+     * @param int $userId
+     * @return Model|Builder|null
+     */
+    final public function checkAnActiveGameForWoman(int $userId): Model|Builder|null
+    {
+        return Game::query()
+            ->Where('status', '=', StatusGameEnum::ACTIVE)
+            ->where(function ($query) use ($userId) {
+                $query->orWhere('first_user_id', '=', $userId)
+                    ->orWhere('second_user_id', '=', $userId)
+                    ->orWhere('third_user_id', '=', $userId);
+            })
+            ->orWhere('status', '=', StatusGameEnum::PROCESS)
+            ->where(function ($query) use ($userId) {
+                $query->orWhere('first_user_id', '=', $userId)
+                    ->orWhere('second_user_id', '=', $userId)
+                    ->orWhere('third_user_id', '=', $userId);
+            })
+            ->first();
     }
 }

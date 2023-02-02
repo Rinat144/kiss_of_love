@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Game;
 use App\Services\Game\Exception\NotFoundGameException;
 use App\Services\Game\GameService;
 use App\Services\Game\Requests\CreateGameRequest;
+use App\Services\Game\Requests\SearchActiveGameRequest;
 use App\Services\Game\Resources\GameResource;
-use Illuminate\Http\JsonResponse;
+use App\Services\Game\Resources\GetInfoTheGameResource;
+use App\Services\Game\Resources\SearchActiveGameResource;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class GameController extends Controller
 {
@@ -22,37 +24,36 @@ class GameController extends Controller
 
     /**
      * @param CreateGameRequest $createGameRequest
-     * @return JsonResponse
+     * @return GameResource
      */
-    final public function createGame(CreateGameRequest $createGameRequest): JsonResponse
+    final public function createGame(CreateGameRequest $createGameRequest): GameResource
     {
         $game = $this->gameService->createGame($createGameRequest->getDto());
 
-        return response()->json([
-            $game
-        ]);
-    }
-
-    /**
-     * @param Game $game
-     * @return GameResource
-     */
-    final public function getInfoTheGame(Game $game): GameResource
-    {
         return new GameResource($game);
     }
 
     /**
-     * @param CreateGameRequest $createGameRequest
-     * @return JsonResponse
+     * @param int $game
+     * @return AnonymousResourceCollection
      * @throws NotFoundGameException
      */
-    final public function searchActiveGame(CreateGameRequest $createGameRequest): JsonResponse
+    final public function getInfoTheGame(int $game): AnonymousResourceCollection
     {
-        $this->gameService->searchActiveGame($createGameRequest->getDto());
+        $infoTheGame = $this->gameService->getInfoAboutTheMatchPlayed($game);
 
-        return response()->json([
-            true
-        ]);
+        return GetInfoTheGameResource::collection($infoTheGame);
+    }
+
+    /**
+     * @param SearchActiveGameRequest $searchActiveGameRequest
+     * @return SearchActiveGameResource
+     * @throws NotFoundGameException
+     */
+    final public function searchActiveGame(SearchActiveGameRequest $searchActiveGameRequest): SearchActiveGameResource
+    {
+       $game = $this->gameService->searchActiveGame($searchActiveGameRequest->getDto());
+
+        return new SearchActiveGameResource($game);
     }
 }
