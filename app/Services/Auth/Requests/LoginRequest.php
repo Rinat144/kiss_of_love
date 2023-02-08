@@ -11,7 +11,7 @@ class LoginRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    final public function authorize(): bool
     {
         return true;
     }
@@ -21,7 +21,7 @@ class LoginRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
-    public function rules()
+    final public function rules(): array
     {
         return [
             'login' => ['required', 'string', 'min:8', 'max:32'],

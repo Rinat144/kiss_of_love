@@ -10,13 +10,13 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
-class AuthService
+readonly class AuthService
 {
     /**
      * @param AuthRepository $authRepository
      */
     public function __construct(
-        private readonly AuthRepository $authRepository
+        private AuthRepository $authRepository
     )
     {
     }
@@ -25,7 +25,7 @@ class AuthService
      * @param RegisterDto $authDTO
      * @return Model|Builder
      */
-    public function register(RegisterDto $authDTO): Model|Builder
+    final public function register(RegisterDto $authDTO): Model|Builder
     {
         return $this->authRepository->register($authDTO);
     }
@@ -35,7 +35,7 @@ class AuthService
      * @return string
      * @throws AuthenticationException
      */
-    public function login(LoginRequest $loginRequest): string
+    final public function login(LoginRequest $loginRequest): string
     {
         if (!$token = Auth::attempt($loginRequest->validated())) {
             throw new AuthenticationException();

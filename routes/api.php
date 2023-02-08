@@ -28,6 +28,6 @@ Route::group([
     'middleware' => 'auth:api'
 ], static function () {
     Route::post('/create', [GameController::class, 'createGame']);
-    Route::get('/info/{game}', [GameController::class, 'getInfoTheGame']);
+    Route::get('/info/{gameId}', [GameController::class, 'getInfoTheGame']);
     Route::post('/search_active', [GameController::class, 'searchActiveGame']);
 });

@@ -15,7 +15,7 @@ class RegisterRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    final public function authorize(): bool
     {
         return true;
     }
@@ -25,7 +25,7 @@ class RegisterRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
-    public function rules()
+    final public function rules(): array
     {
         return [
             'name' => ['required', 'string', 'max:15'],
@@ -40,7 +40,7 @@ class RegisterRequest extends FormRequest
     /**
      * @return RegisterDto
      */
-    public function getDto(): RegisterDto
+    final public function getDto(): RegisterDto
     {
         return new RegisterDto(
             name: $this->get('name'),

@@ -13,7 +13,7 @@ class AuthRepository
      * @param RegisterDto $authDTO
      * @return Model|Builder
      */
-    public function register(RegisterDto $authDTO): Model|Builder
+    final public function register(RegisterDto $authDTO): Model|Builder
     {
         return User::query()->create([
             'name' => $authDTO->name,

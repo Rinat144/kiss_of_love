@@ -9,7 +9,6 @@ use App\Services\Game\Requests\SearchActiveGameRequest;
 use App\Services\Game\Resources\GameResource;
 use App\Services\Game\Resources\GetInfoTheGameResource;
 use App\Services\Game\Resources\SearchActiveGameResource;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class GameController extends Controller
 {
@@ -34,15 +33,15 @@ class GameController extends Controller
     }
 
     /**
-     * @param int $game
-     * @return AnonymousResourceCollection
+     * @param int $gameId
+     * @return GetInfoTheGameResource
      * @throws NotFoundGameException
      */
-    final public function getInfoTheGame(int $game): AnonymousResourceCollection
+    final public function getInfoTheGame(int $gameId): GetInfoTheGameResource
     {
-        $infoTheGame = $this->gameService->getInfoAboutTheMatchPlayed($game);
+        $infoTheGame = $this->gameService->getInfoAboutTheMatchPlayed($gameId);
 
-        return GetInfoTheGameResource::collection($infoTheGame);
+        return new GetInfoTheGameResource($infoTheGame);
     }
 
     /**

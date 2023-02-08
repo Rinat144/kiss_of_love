@@ -12,6 +12,8 @@ class CityRepository
      */
     final public function getAllCities(): Collection|array
     {
-        return City::query()->select('id', 'city')->get();
+        return City::query()
+            ->select('id', 'city')
+            ->get();
     }
 }

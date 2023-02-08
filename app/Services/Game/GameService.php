@@ -7,12 +7,10 @@ use App\Models\User;
 use App\Services\Auth\Enum\GenderSelectionEnum;
 use App\Services\Game\DTOs\CreateGameDto;
 use App\Services\Game\DTOs\SearchActiveGameDto;
+use App\Services\Game\Enum\ExceptionEnum;
 use App\Services\Game\Exception\NotFoundGameException;
 use App\Services\Game\Repositories\GameRepository;
 use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 
 class GameService
 {
@@ -43,10 +41,10 @@ class GameService
 
     /**
      * @param SearchActiveGameDto $searchActiveGameDto
-     * @return Model|Builder|Game
+     * @return Game|null
      * @throws NotFoundGameException
      */
-    final public function searchActiveGame(SearchActiveGameDto $searchActiveGameDto): Model|Builder|Game
+    final public function searchActiveGame(SearchActiveGameDto $searchActiveGameDto): ?Game
     {
         $game = $this->checkAnActiveGameForPlayer();
 
@@ -60,47 +58,47 @@ class GameService
         };
 
         if (!$game) {
-            throw new NotFoundGameException('No active games');
+            throw new NotFoundGameException(ExceptionEnum::NO_ACTIVE_GAME->value);
         }
 
-        return $this->distributeRheGameByGender($game, $searchActiveGameDto);
+        return $this->distributeTheGameByGender($game, $searchActiveGameDto);
     }
 
     /**
-     * @param int $game
-     * @return Collection|array
+     * @param int $gameId
+     * @return Game|null
      * @throws NotFoundGameException
      */
-    final public function getInfoAboutTheMatchPlayed(int $game): Collection|array
+    final public function getInfoAboutTheMatchPlayed(int $gameId): ?Game
     {
         $userId = $this->user->id;
 
-        $infoAboutMatch = $this->gameRepository->getInfoAboutTheMatchPlayed($game, $userId);
+        $infoAboutMatch = $this->gameRepository->getInfoAboutTheMatchPlayed($gameId, $userId);
 
-        if ($infoAboutMatch->isEmpty()) {
-            throw new NotFoundGameException('You didnt participate in this match');
+        if (!$infoAboutMatch) {
+            throw new NotFoundGameException(ExceptionEnum::NOT_FOUND_GAME->value);
         }
 
         return $infoAboutMatch;
     }
 
     /**
-     * @return Model|Builder|null
+     * @return Game|null
      */
-    private function checkAnActiveGameForPlayer(): Model|Builder|null
+    private function checkAnActiveGameForPlayer(): ?Game
     {
         return match ($this->user->gender) {
-            GenderSelectionEnum::MAN => $this->gameRepository->checkAnActiveGameForMan($this->user->id),
-            GenderSelectionEnum::WOMAN => $this->gameRepository->checkAnActiveGameForWoman($this->user->id),
+            GenderSelectionEnum::MAN => $this->gameRepository->getAnActiveGameForMan($this->user->id),
+            GenderSelectionEnum::WOMAN => $this->gameRepository->getAnActiveGameForWoman($this->user->id),
         };
     }
 
     /**
-     * @param Game|Model $game
+     * @param Game $game
      * @param SearchActiveGameDto $searchActiveGameDto
-     * @return Game
+     * @return Game|null
      */
-    private function distributeRheGameByGender(Game|Model $game, SearchActiveGameDto $searchActiveGameDto): Game
+    private function distributeTheGameByGender(Game $game, SearchActiveGameDto $searchActiveGameDto): ?Game
     {
         if ($this->user->gender === GenderSelectionEnum::MAN) {
             return $this->includeUserGameForMan($game, $searchActiveGameDto);
@@ -112,9 +110,9 @@ class GameService
     /**
      * @param Game $game
      * @param SearchActiveGameDto $searchActiveGameDto
-     * @return Game
+     * @return Game|null
      */
-    private function includeUserGameForMan(Game $game, SearchActiveGameDto $searchActiveGameDto): Game
+    private function includeUserGameForMan(Game $game, SearchActiveGameDto $searchActiveGameDto): ?Game
     {
         if (!$game->fourth_user_id) {
             $game = $this->gameRepository->updateDataThePlayer('fourth_user_id', 'fourth_user_info', $searchActiveGameDto->question, $game);
@@ -131,9 +129,9 @@ class GameService
     /**
      * @param Game $game
      * @param SearchActiveGameDto $searchActiveGameDto
-     * @return Game
+     * @return Game|null
      */
-    private function includeUserGameForWoman(Game $game, SearchActiveGameDto $searchActiveGameDto): Game
+    private function includeUserGameForWoman(Game $game, SearchActiveGameDto $searchActiveGameDto): ?Game
     {
         if (!$game->first_user_id) {
             $game = $this->gameRepository->updateDataThePlayer('first_user_id', 'first_user_info', $searchActiveGameDto->question, $game);
