@@ -152,6 +152,7 @@ class GameRepository
                     ->orWhere('fifth_user_id', '=', $userId)
                     ->orWhere('sixth_user_id', '=', $userId);
             })
+            ->latest()
             ->first();
 
         if ($game instanceof Game) {
@@ -177,6 +178,7 @@ class GameRepository
                     ->orWhere('second_user_id', '=', $userId)
                     ->orWhere('third_user_id', '=', $userId);
             })
+            ->latest()
             ->first();
 
         if ($game instanceof Game) {
