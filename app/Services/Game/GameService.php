@@ -122,7 +122,7 @@ class GameService
 
         $activeGame = $this->getAnActiveGameForPlayer();
 
-        if (!$activeGame){
+        if (!$activeGame) {
             throw new NotFoundGameException(ExceptionEnum::NO_ACTIVE_GAME->value);
         }
 
