@@ -112,6 +112,43 @@ class GameService
     }
 
     /**
+     * @param int $selectLikeUserRequest
+     * @return true
+     * @throws NotFoundGameException
+     */
+    final public function selectLikeUser(int $selectLikeUserRequest): true
+    {
+        $userId = $this->user->id;
+
+        $activeGame = $this->getAnActiveGameForPlayer();
+
+        if (!$activeGame){
+            throw new NotFoundGameException(ExceptionEnum::NO_ACTIVE_GAME->value);
+        }
+
+        $infoTheFieldUser = $this->getFieldInfoUser($activeGame, $userId);
+
+        return $this->gameRepository->selectLikeUser($selectLikeUserRequest, $infoTheFieldUser, $activeGame);
+    }
+
+    /**
+     * @param Game $activeGame
+     * @param int $userId
+     * @return string
+     */
+    private function getFieldInfoUser(Game $activeGame, int $userId): string
+    {
+        return match ($userId) {
+            $activeGame->first_user_id => 'first_user_info',
+            $activeGame->second_user_id => 'second_user_info',
+            $activeGame->third_user_id => 'third_user_info',
+            $activeGame->fourth_user_id => 'fourth_user_info',
+            $activeGame->fifth_user_id => 'fifth_user_info',
+            $activeGame->sixth_user_id => 'sixth_user_info',
+        };
+    }
+
+    /**
      * @return Game|null
      */
     private function getAnActiveGameForPlayer(): ?Game

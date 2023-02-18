@@ -30,4 +30,5 @@ Route::group([
     Route::get('/info/{gameId}', [GameController::class, 'getInfoTheGame']);
     Route::post('/search_active', [GameController::class, 'searchActiveGame']);
     Route::post('/answer', [GameController::class, 'addAnswerTheQuestions']);
+    Route::post('/like', [GameController::class, 'selectLikeUser']);
 });

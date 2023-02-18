@@ -238,4 +238,21 @@ class GameRepository
 
         return true;
     }
+
+    /**
+     * @param int $selectLikeUserRequest
+     * @param string $infoTheFieldUser
+     * @param Game $game
+     * @return true
+     */
+    final public function selectLikeUser(int $selectLikeUserRequest, string $infoTheFieldUser, Game $game): true
+    {
+        $userInfo = $game->{$infoTheFieldUser};
+        $userInfo['select_user_id'] = $selectLikeUserRequest;
+        $game->{$infoTheFieldUser} = $userInfo;
+
+        $game->save();
+
+        return true;
+    }
 }
