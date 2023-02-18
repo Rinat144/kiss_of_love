@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('chat_id')->constrained('chats');
             $table->foreignId('user_id')->constrained('users');
             $table->string('message');
-            $table->boolean('is_read');
+            $table->boolean('is_read')->default(false);
             $table->timestamps();
         });
     }

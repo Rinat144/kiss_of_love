@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('chat_parti_picants', static function (Blueprint $table) {
+        Schema::create('chat_partipicants', static function (Blueprint $table) {
             $table->id();
             $table->foreignId('chat_id')->constrained('chats');
             $table->foreignId('user_id')->constrained('users');
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('chat_parti_picants');
+        Schema::dropIfExists('chat_partipicants');
     }
 };
