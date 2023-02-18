@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\Game\Exception\NotFoundGameException;
 use App\Services\Game\GameService;
+use App\Services\Game\Requests\AddAnswerTheQuestionsRequest;
 use App\Services\Game\Requests\CreateGameRequest;
 use App\Services\Game\Requests\SearchActiveGameRequest;
 use App\Services\Game\Resources\GameResource;
@@ -54,5 +55,15 @@ class GameController extends Controller
        $game = $this->gameService->searchActiveGame($searchActiveGameRequest->getDto());
 
         return new SearchActiveGameResource($game);
+    }
+
+    /**
+     * @param AddAnswerTheQuestionsRequest $answerTheQuestionsRequest
+     * @return void
+     * @throws NotFoundGameException
+     */
+    final public function addAnswerTheQuestions(AddAnswerTheQuestionsRequest $answerTheQuestionsRequest): void
+    {
+        $this->gameService->addAnswerTheQuestions($answerTheQuestionsRequest->getDto());
     }
 }

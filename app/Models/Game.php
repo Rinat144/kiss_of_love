@@ -8,14 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property int|mixed|string|null $fourth_user_id
- * @property false|mixed|string $fourth_user_info
+ * @property mixed $fourth_user_info
  * @property int|mixed $status
- * @property int|mixed|string|null $first_user_id
- * @property false|mixed|string $first_user_info
+ * @property mixed $first_user_id
+ * @property mixed $first_user_info
  * @property mixed $fifth_user_id
+ * @property mixed $fifth_user_info
  * @property mixed $sixth_user_id
+ * @property mixed $sixth_user_info
  * @property mixed $second_user_id
+ * @property mixed $second_user_info
  * @property mixed $third_user_id
+ * @property mixed $third_user_info
  */
 class Game extends Model
 {

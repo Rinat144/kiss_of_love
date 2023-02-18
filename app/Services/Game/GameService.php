@@ -5,6 +5,7 @@ namespace App\Services\Game;
 use App\Models\Game;
 use App\Models\User;
 use App\Services\Auth\Enum\GenderSelectionEnum;
+use App\Services\Game\DTOs\AddAnswerTheQuestionsDto;
 use App\Services\Game\DTOs\CreateGameDto;
 use App\Services\Game\DTOs\SearchActiveGameDto;
 use App\Services\Game\Enum\ExceptionEnum;
@@ -80,6 +81,27 @@ class GameService
         }
 
         return $infoAboutMatch;
+    }
+
+    /**
+     * @param AddAnswerTheQuestionsDto $answerTheQuestionsDto
+     * @return void
+     * @throws NotFoundGameException
+     */
+    final public function addAnswerTheQuestions(AddAnswerTheQuestionsDto $answerTheQuestionsDto): void
+    {
+        $userId = $this->user->id;
+
+        $gameActive = $this->checkAnActiveGameForPlayer();
+
+        if (!$gameActive) {
+            throw new NotFoundGameException(ExceptionEnum::NO_ACTIVE_GAME->value);
+        }
+
+        match ($this->user->gender) {
+            GenderSelectionEnum::MAN => $this->gameRepository->updateAnswersToWoman($answerTheQuestionsDto, $gameActive, $userId),
+            GenderSelectionEnum::WOMAN => $this->gameRepository->updateAnswersToMen($answerTheQuestionsDto, $gameActive, $userId),
+        };
     }
 
     /**

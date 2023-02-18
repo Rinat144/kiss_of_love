@@ -6,7 +6,6 @@ use App\Http\Controllers\GameController;
 use Illuminate\Support\Facades\Route;
 
 Route::group([
-    'middleware' => 'api',
     'prefix' => 'auth'
 ], static function () {
     Route::post('/login', [AuthController::class, 'login']);
@@ -30,4 +29,5 @@ Route::group([
     Route::post('/create', [GameController::class, 'createGame']);
     Route::get('/info/{gameId}', [GameController::class, 'getInfoTheGame']);
     Route::post('/search_active', [GameController::class, 'searchActiveGame']);
+    Route::post('/answer', [GameController::class, 'addAnswerTheQuestions']);
 });
