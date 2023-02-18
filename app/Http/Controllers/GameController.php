@@ -59,11 +59,11 @@ class GameController extends Controller
 
     /**
      * @param AddAnswerTheQuestionsRequest $answerTheQuestionsRequest
-     * @return void
+     * @return true
      * @throws NotFoundGameException
      */
-    final public function addAnswerTheQuestions(AddAnswerTheQuestionsRequest $answerTheQuestionsRequest): void
+    final public function addAnswerTheQuestions(AddAnswerTheQuestionsRequest $answerTheQuestionsRequest): true
     {
-        $this->gameService->addAnswerTheQuestions($answerTheQuestionsRequest->getDto());
+        return $this->gameService->addAnswerTheQuestions($answerTheQuestionsRequest->getDto());
     }
 }

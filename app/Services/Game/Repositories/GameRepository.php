@@ -193,45 +193,49 @@ class GameRepository
      * @param AddAnswerTheQuestionsDto $answerTheQuestionsDto
      * @param Game $game
      * @param int $userId
-     * @return void
+     * @return true
      */
-    final public function updateAnswersToMen(AddAnswerTheQuestionsDto $answerTheQuestionsDto, Game $game, int $userId): void
+    final public function updateAnswersToMen(AddAnswerTheQuestionsDto $answerTheQuestionsDto, Game $game, int $userId): true
     {
         $fourthUserInfo = $game->fourth_user_info;
-        $fourthUserInfo['answers'][$userId] = ['answer' => $answerTheQuestionsDto->answer_to_fourth_user, 'user_id' => $userId];
+        $fourthUserInfo['answers'][$userId] = ['answer' => $answerTheQuestionsDto->answerToFourthUser, 'user_id' => $userId];
         $game->fourth_user_info = $fourthUserInfo;
 
         $fifthUserInfo = $game->fifth_user_info;
-        $fifthUserInfo['answers'][$userId] = ['answer' => $answerTheQuestionsDto->answer_to_fifth_user, 'user_id' => $userId];
+        $fifthUserInfo['answers'][$userId] = ['answer' => $answerTheQuestionsDto->answerToFifthUser, 'user_id' => $userId];
         $game->fifth_user_info = $fifthUserInfo;
 
         $sixthUserInfo = $game->sixth_user_info;
-        $sixthUserInfo['answers'][$userId] = ['answer' => $answerTheQuestionsDto->answer_to_sixth_user, 'user_id' => $userId];
+        $sixthUserInfo['answers'][$userId] = ['answer' => $answerTheQuestionsDto->answerToSixthUser, 'user_id' => $userId];
         $game->sixth_user_info = $sixthUserInfo;
 
         $game->save();
+
+        return true;
     }
 
     /**
      * @param AddAnswerTheQuestionsDto $answerTheQuestionsDto
      * @param Game $game
      * @param int $userId
-     * @return void
+     * @return true
      */
-    final public function updateAnswersToWoman(AddAnswerTheQuestionsDto $answerTheQuestionsDto, Game $game, int $userId): void
+    final public function updateAnswersToWoman(AddAnswerTheQuestionsDto $answerTheQuestionsDto, Game $game, int $userId): true
     {
         $firstUserInfo = $game->first_user_info;
-        $firstUserInfo['answers'][$userId] = ['answer' => $answerTheQuestionsDto->answer_to_first_user, 'user_id' => $userId];
+        $firstUserInfo['answers'][$userId] = ['answer' => $answerTheQuestionsDto->answerToFirstUser, 'user_id' => $userId];
         $game->first_user_info = $firstUserInfo;
 
         $secondUserInfo = $game->second_user_info;
-        $secondUserInfo['answers'][$userId] = ['answer' => $answerTheQuestionsDto->answer_to_second_user, 'user_id' => $userId];
+        $secondUserInfo['answers'][$userId] = ['answer' => $answerTheQuestionsDto->answerToSecondUser, 'user_id' => $userId];
         $game->second_user_info = $secondUserInfo;
 
         $thirdUserInfo = $game->third_user_info;
-        $thirdUserInfo['answers'][$userId] = ['answer' => $answerTheQuestionsDto->answer_to_third_user, 'user_id' => $userId];
+        $thirdUserInfo['answers'][$userId] = ['answer' => $answerTheQuestionsDto->answerToThirdUser, 'user_id' => $userId];
         $game->third_user_info = $thirdUserInfo;
 
         $game->save();
+
+        return true;
     }
 }

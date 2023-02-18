@@ -21,9 +21,8 @@ class GameService
      */
     public function __construct(
         private readonly GameRepository $gameRepository,
-        private Authenticatable         $user,
-    )
-    {
+        private Authenticatable $user,
+    ) {
         $this->user = auth()->user();
     }
 
@@ -47,7 +46,7 @@ class GameService
      */
     final public function searchActiveGame(SearchActiveGameDto $searchActiveGameDto): ?Game
     {
-        $game = $this->checkAnActiveGameForPlayer();
+        $game = $this->getAnActiveGameForPlayer();
 
         if ($game) {
             return $game;
@@ -85,29 +84,37 @@ class GameService
 
     /**
      * @param AddAnswerTheQuestionsDto $answerTheQuestionsDto
-     * @return void
+     * @return true
      * @throws NotFoundGameException
      */
-    final public function addAnswerTheQuestions(AddAnswerTheQuestionsDto $answerTheQuestionsDto): void
+    final public function addAnswerTheQuestions(AddAnswerTheQuestionsDto $answerTheQuestionsDto): true
     {
         $userId = $this->user->id;
 
-        $gameActive = $this->checkAnActiveGameForPlayer();
+        $gameActive = $this->getAnActiveGameForPlayer();
 
         if (!$gameActive) {
             throw new NotFoundGameException(ExceptionEnum::NO_ACTIVE_GAME->value);
         }
 
-        match ($this->user->gender) {
-            GenderSelectionEnum::MAN => $this->gameRepository->updateAnswersToWoman($answerTheQuestionsDto, $gameActive, $userId),
-            GenderSelectionEnum::WOMAN => $this->gameRepository->updateAnswersToMen($answerTheQuestionsDto, $gameActive, $userId),
+        return match ($this->user->gender) {
+            GenderSelectionEnum::MAN => $this->gameRepository->updateAnswersToWoman(
+                $answerTheQuestionsDto,
+                $gameActive,
+                $userId
+            ),
+            GenderSelectionEnum::WOMAN => $this->gameRepository->updateAnswersToMen(
+                $answerTheQuestionsDto,
+                $gameActive,
+                $userId
+            ),
         };
     }
 
     /**
      * @return Game|null
      */
-    private function checkAnActiveGameForPlayer(): ?Game
+    private function getAnActiveGameForPlayer(): ?Game
     {
         return match ($this->user->gender) {
             GenderSelectionEnum::MAN => $this->gameRepository->getAnActiveGameForMan($this->user->id),
@@ -137,11 +144,26 @@ class GameService
     private function includeUserGameForMan(Game $game, SearchActiveGameDto $searchActiveGameDto): ?Game
     {
         if (!$game->fourth_user_id) {
-            $game = $this->gameRepository->updateDataThePlayer('fourth_user_id', 'fourth_user_info', $searchActiveGameDto->question, $game);
+            $game = $this->gameRepository->updateDataThePlayer(
+                'fourth_user_id',
+                'fourth_user_info',
+                $searchActiveGameDto->question,
+                $game
+            );
         } elseif (!$game->fifth_user_id) {
-            $game = $this->gameRepository->updateDataThePlayer('fifth_user_id', 'fifth_user_info', $searchActiveGameDto->question, $game);
+            $game = $this->gameRepository->updateDataThePlayer(
+                'fifth_user_id',
+                'fifth_user_info',
+                $searchActiveGameDto->question,
+                $game
+            );
         } elseif (!$game->sixth_user_id) {
-            $game = $this->gameRepository->updateDataThePlayer('sixth_user_id', 'sixth_user_info', $searchActiveGameDto->question, $game);
+            $game = $this->gameRepository->updateDataThePlayer(
+                'sixth_user_id',
+                'sixth_user_info',
+                $searchActiveGameDto->question,
+                $game
+            );
             $this->updateStatusGameForMan($game);
         }
 
@@ -156,11 +178,26 @@ class GameService
     private function includeUserGameForWoman(Game $game, SearchActiveGameDto $searchActiveGameDto): ?Game
     {
         if (!$game->first_user_id) {
-            $game = $this->gameRepository->updateDataThePlayer('first_user_id', 'first_user_info', $searchActiveGameDto->question, $game);
+            $game = $this->gameRepository->updateDataThePlayer(
+                'first_user_id',
+                'first_user_info',
+                $searchActiveGameDto->question,
+                $game
+            );
         } elseif (!$game->second_user_id) {
-            $game = $this->gameRepository->updateDataThePlayer('second_user_id', 'second_user_info', $searchActiveGameDto->question, $game);
+            $game = $this->gameRepository->updateDataThePlayer(
+                'second_user_id',
+                'second_user_info',
+                $searchActiveGameDto->question,
+                $game
+            );
         } elseif (!$game->third_user_id) {
-            $game = $this->gameRepository->updateDataThePlayer('third_user_id', 'third_user_info', $searchActiveGameDto->question, $game);
+            $game = $this->gameRepository->updateDataThePlayer(
+                'third_user_id',
+                'third_user_info',
+                $searchActiveGameDto->question,
+                $game
+            );
             $this->updateStatusGameForWoman($game);
         }
 

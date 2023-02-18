@@ -25,12 +25,12 @@ class AddAnswerTheQuestionsRequest extends FormRequest
     final public function rules(): array
     {
         return [
-            'answer_to_first_user' => ['string', 'nullable'],
-            'answer_to_second_user' => ['string', 'nullable'],
-            'answer_to_third_user' => ['string', 'nullable'],
-            'answer_to_fourth_user' => ['string', 'nullable'],
-            'answer_to_fifth_user' => ['string', 'nullable'],
-            'answer_to_sixth_user' => ['string', 'nullable'],
+            'answer_to_first_user' => ['string', 'max:120', 'nullable'],
+            'answer_to_second_user' => ['string', 'max:120', 'nullable'],
+            'answer_to_third_user' => ['string', 'max:120', 'nullable'],
+            'answer_to_fourth_user' => ['string', 'max:120', 'nullable'],
+            'answer_to_fifth_user' => ['string', 'max:120', 'nullable'],
+            'answer_to_sixth_user' => ['string', 'max:120', 'nullable'],
         ];
     }
 
@@ -40,12 +40,12 @@ class AddAnswerTheQuestionsRequest extends FormRequest
     final public function getDto(): AddAnswerTheQuestionsDto
     {
         return new AddAnswerTheQuestionsDto(
-            answer_to_first_user: $this->get('answer_to_first_user'),
-            answer_to_second_user: $this->get('answer_to_second_user'),
-            answer_to_third_user: $this->get('answer_to_third_user'),
-            answer_to_fourth_user: $this->get('answer_to_fourth_user'),
-            answer_to_fifth_user: $this->get('answer_to_fifth_user'),
-            answer_to_sixth_user: $this->get('answer_to_sixth_user'),
+            answerToFirstUser: $this->get('answer_to_first_user'),
+            answerToSecondUser: $this->get('answer_to_second_user'),
+            answerToThirdUser: $this->get('answer_to_third_user'),
+            answerToFourthUser: $this->get('answer_to_fourth_user'),
+            answerToFifthUser: $this->get('answer_to_fifth_user'),
+            answerToSixthUser: $this->get('answer_to_sixth_user'),
         );
     }
 }
