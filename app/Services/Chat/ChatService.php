@@ -6,73 +6,77 @@ use App\Models\Game;
 use App\Models\User;
 use App\Services\Chat\DTOs\SendMessageDto;
 use App\Services\Chat\Enum\ExceptionEnum;
-use App\Services\Chat\Exception\NotFoundChatException;
 use App\Services\Chat\Repositories\ChatRepository;
-use Illuminate\Support\Facades\DB;
+use App\Services\ChatPartipicant\Repositories\ChatPartipicantRepository;
+use App\Services\Game\Repositories\GameRepository;
+use App\Services\Message\Repositories\MessageRepositories;
+use App\Support\Exceptions\ApiException;
+use App\Support\GameHelper;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Support\Facades\DB;
 
-class ChatService
+readonly class ChatService
 {
     /**
      * @param ChatRepository $chatRepository
+     * @param GameRepository $gameRepository
+     * @param ChatPartipicantRepository $chatPartipicantRepository
+     * @param MessageRepositories $messageRepositories
      * @param User $user
      */
     public function __construct(
-        private readonly ChatRepository $chatRepository,
+        private ChatRepository $chatRepository,
+        private GameRepository $gameRepository,
+        private ChatPartipicantRepository $chatPartipicantRepository,
+        private MessageRepositories $messageRepositories,
         private Authenticatable $user,
     ) {
-        $this->user = auth()->user();
     }
 
     /**
      * @param int $gameId
-     * @return true
-     * @throws NotFoundChatException
+     * @return int
+     * @throws ApiException
      */
-    final public function chatCreate(int $gameId): true
+    final public function chatCreate(int $gameId): int
     {
         $userId = $this->user->id;
-
-        $game = $this->chatRepository->searchGame($gameId);
+        $game = $this->gameRepository->findGameById($gameId);
 
         if (!$game) {
-            throw new NotFoundChatException(ExceptionEnum::NO_ACTIVE_GAME->value);
+            throw new ApiException(ExceptionEnum::NO_ACTIVE_GAME->value);
         }
 
-        $idSelectedUser = $this->getCompatibilityInfo($game, $userId);
+        $idSelectedUser = $this->getSelectedUserId($game, $userId);
 
         if (!$idSelectedUser) {
-            throw new NotFoundChatException(ExceptionEnum::ID_DIDNT_MATCH->value);
+            throw new ApiException(ExceptionEnum::ID_DIDNT_MATCH->value);
         }
 
-        $chat = $this->chatRepository->chatCreate();
+        return DB::transaction(function () use ($userId, $idSelectedUser) {
+            $chatId = $this->chatRepository->chatCreate()->id;
+            $this->chatPartipicantRepository->chatPartipicantCreate($chatId, $userId);
+            $this->chatPartipicantRepository->chatPartipicantCreate($chatId, $idSelectedUser);
 
-        $chatId = $chat->id;
-
-        DB::transaction(function () use ($chatId, $userId, $idSelectedUser) {
-            $this->chatRepository->chatPartipicantsCreate($chatId, $userId);
-            $this->chatRepository->chatPartipicantsCreate($chatId, $idSelectedUser);
+            return $chatId;
         });
-
-        return true;
     }
 
     /**
      * @param SendMessageDto $sendMessageDto
-     * @return true
-     * @throws NotFoundChatException
+     * @return void
+     * @throws ApiException
      */
-    final public function sendMessage(SendMessageDto $sendMessageDto): true
+    final public function sendMessage(SendMessageDto $sendMessageDto): void
     {
         $userId = $this->user->id;
+        $isExistChatPartipicant = $this->chatPartipicantRepository->existChatPartipicant($userId, $sendMessageDto);
 
-        $booleanValueOfTheRecord = $this->chatRepository->searchRecordInPartipicants($userId, $sendMessageDto);
-
-        if (!$booleanValueOfTheRecord) {
-            throw new NotFoundChatException(ExceptionEnum::NO_ACTIVE_CHAT->value);
+        if (!$isExistChatPartipicant) {
+            throw new ApiException(ExceptionEnum::NO_ACTIVE_CHAT->value);
         }
 
-        return $this->chatRepository->createNewMessage($sendMessageDto, $userId);
+        $this->messageRepositories->createNewMessage($sendMessageDto, $userId);
     }
 
     /**
@@ -81,14 +85,12 @@ class ChatService
      * @return int|null
      * @noinspection PhpIllegalStringOffsetInspection
      */
-    private function getCompatibilityInfo(Game $game, int $userId): ?int
+    private function getSelectedUserId(Game $game, int $userId): ?int
     {
-        $infoFieldAuthUser = $this->getFieldInfoUser($game, $userId);
-
+        $infoFieldAuthUser = GameHelper::getFieldInfoUser($game, $userId);
         $idTheSelectedAuthUser = $game->$infoFieldAuthUser['select_user_id'];
 
-        $infoFieldUser = $this->getFieldInfoUser($game, $idTheSelectedAuthUser);
-
+        $infoFieldUser = GameHelper::getFieldInfoUser($game, $idTheSelectedAuthUser);
         $idTheSelectedUser = $game->$infoFieldUser['select_user_id'];
 
         if ($userId === $idTheSelectedUser) {
@@ -96,22 +98,5 @@ class ChatService
         }
 
         return false;
-    }
-
-    /**
-     * @param Game $game
-     * @param int $userId
-     * @return string
-     */
-    private function getFieldInfoUser(Game $game, int $userId): string
-    {
-        return match ($userId) {
-            $game->first_user_id => 'first_user_info',
-            $game->second_user_id => 'second_user_info',
-            $game->third_user_id => 'third_user_info',
-            $game->fourth_user_id => 'fourth_user_info',
-            $game->fifth_user_id => 'fifth_user_info',
-            $game->sixth_user_id => 'sixth_user_info',
-        };
     }
 }

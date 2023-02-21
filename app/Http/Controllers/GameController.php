@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\Game\Exception\NotFoundGameException;
 use App\Services\Game\GameService;
 use App\Services\Game\Requests\AddAnswerTheQuestionsRequest;
 use App\Services\Game\Requests\CreateGameRequest;
@@ -11,6 +10,7 @@ use App\Services\Game\Requests\SelectLikeUserRequest;
 use App\Services\Game\Resources\GameResource;
 use App\Services\Game\Resources\GetInfoTheGameResource;
 use App\Services\Game\Resources\SearchActiveGameResource;
+use App\Support\Exceptions\ApiException;
 use Illuminate\Http\JsonResponse;
 
 class GameController extends Controller
@@ -20,8 +20,7 @@ class GameController extends Controller
      */
     public function __construct(
         private readonly GameService $gameService
-    )
-    {
+    ) {
     }
 
     /**
@@ -38,7 +37,7 @@ class GameController extends Controller
     /**
      * @param int $gameId
      * @return GetInfoTheGameResource
-     * @throws NotFoundGameException
+     * @throws ApiException
      */
     final public function getInfoTheGame(int $gameId): GetInfoTheGameResource
     {
@@ -50,11 +49,11 @@ class GameController extends Controller
     /**
      * @param SearchActiveGameRequest $searchActiveGameRequest
      * @return SearchActiveGameResource
-     * @throws NotFoundGameException
+     * @throws ApiException
      */
     final public function searchActiveGame(SearchActiveGameRequest $searchActiveGameRequest): SearchActiveGameResource
     {
-       $game = $this->gameService->searchActiveGame($searchActiveGameRequest->getDto());
+        $game = $this->gameService->searchActiveGame($searchActiveGameRequest->getDto());
 
         return new SearchActiveGameResource($game);
     }
@@ -62,28 +61,28 @@ class GameController extends Controller
     /**
      * @param AddAnswerTheQuestionsRequest $answerTheQuestionsRequest
      * @return JsonResponse
-     * @throws NotFoundGameException
+     * @throws ApiException
      */
     final public function addAnswerTheQuestions(AddAnswerTheQuestionsRequest $answerTheQuestionsRequest): JsonResponse
     {
-        $statusGame = $this->gameService->addAnswerTheQuestions($answerTheQuestionsRequest->getDto());
+        $this->gameService->addAnswerTheQuestions($answerTheQuestionsRequest->getDto());
 
         return response()->json([
-            'status' => $statusGame,
+            'status' => true,
         ]);
     }
 
     /**
      * @param SelectLikeUserRequest $selectLikeUserRequest
      * @return JsonResponse
-     * @throws NotFoundGameException
+     * @throws ApiException
      */
     final public function selectLikeUser(SelectLikeUserRequest $selectLikeUserRequest): JsonResponse
     {
-       $statusGame = $this->gameService->selectLikeUser($selectLikeUserRequest['select_user_id']);
+        $this->gameService->selectLikeUser($selectLikeUserRequest['select_user_id']);
 
-       return response()->json([
-           'status' => $statusGame,
-       ]);
+        return response()->json([
+            'status' => true,
+        ]);
     }
 }

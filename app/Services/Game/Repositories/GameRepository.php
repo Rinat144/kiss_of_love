@@ -92,8 +92,12 @@ class GameRepository
      * @param Game $game
      * @return Game|null
      */
-    final public function updateDataThePlayer(string $userIdColumn, string $userInfoColumn, string $question, Game $game): ?Game
-    {
+    final public function updateDataThePlayer(
+        string $userIdColumn,
+        string $userInfoColumn,
+        string $question,
+        Game $game
+    ): ?Game {
         $game->{$userIdColumn} = auth()->id();
         $game->{$userInfoColumn} = ['question' => $question];
         $game->save();
@@ -193,66 +197,101 @@ class GameRepository
      * @param AddAnswerTheQuestionsDto $answerTheQuestionsDto
      * @param Game $game
      * @param int $userId
-     * @return true
+     * @return void
      */
-    final public function updateAnswersToMen(AddAnswerTheQuestionsDto $answerTheQuestionsDto, Game $game, int $userId): true
-    {
+    final public function updateAnswersToMen(
+        AddAnswerTheQuestionsDto $answerTheQuestionsDto,
+        Game $game,
+        int $userId
+    ): void {
         $fourthUserInfo = $game->fourth_user_info;
-        $fourthUserInfo['answers'][$userId] = ['answer' => $answerTheQuestionsDto->answerToFourthUser, 'user_id' => $userId];
+        $fourthUserInfo['answers'][$userId] = [
+            'answer' => $answerTheQuestionsDto->answerToFourthUser,
+            'user_id' => $userId
+        ];
         $game->fourth_user_info = $fourthUserInfo;
 
         $fifthUserInfo = $game->fifth_user_info;
-        $fifthUserInfo['answers'][$userId] = ['answer' => $answerTheQuestionsDto->answerToFifthUser, 'user_id' => $userId];
+        $fifthUserInfo['answers'][$userId] = [
+            'answer' => $answerTheQuestionsDto->answerToFifthUser,
+            'user_id' => $userId
+        ];
         $game->fifth_user_info = $fifthUserInfo;
 
         $sixthUserInfo = $game->sixth_user_info;
-        $sixthUserInfo['answers'][$userId] = ['answer' => $answerTheQuestionsDto->answerToSixthUser, 'user_id' => $userId];
+        $sixthUserInfo['answers'][$userId] = [
+            'answer' => $answerTheQuestionsDto->answerToSixthUser,
+            'user_id' => $userId
+        ];
         $game->sixth_user_info = $sixthUserInfo;
 
         $game->save();
-
-        return true;
     }
 
     /**
      * @param AddAnswerTheQuestionsDto $answerTheQuestionsDto
      * @param Game $game
      * @param int $userId
-     * @return true
+     * @return void
      */
-    final public function updateAnswersToWoman(AddAnswerTheQuestionsDto $answerTheQuestionsDto, Game $game, int $userId): true
-    {
+    final public function updateAnswersToWoman(
+        AddAnswerTheQuestionsDto $answerTheQuestionsDto,
+        Game $game,
+        int $userId
+    ): void {
         $firstUserInfo = $game->first_user_info;
-        $firstUserInfo['answers'][$userId] = ['answer' => $answerTheQuestionsDto->answerToFirstUser, 'user_id' => $userId];
+        $firstUserInfo['answers'][$userId] = [
+            'answer' => $answerTheQuestionsDto->answerToFirstUser,
+            'user_id' => $userId
+        ];
         $game->first_user_info = $firstUserInfo;
 
         $secondUserInfo = $game->second_user_info;
-        $secondUserInfo['answers'][$userId] = ['answer' => $answerTheQuestionsDto->answerToSecondUser, 'user_id' => $userId];
+        $secondUserInfo['answers'][$userId] = [
+            'answer' => $answerTheQuestionsDto->answerToSecondUser,
+            'user_id' => $userId
+        ];
         $game->second_user_info = $secondUserInfo;
 
         $thirdUserInfo = $game->third_user_info;
-        $thirdUserInfo['answers'][$userId] = ['answer' => $answerTheQuestionsDto->answerToThirdUser, 'user_id' => $userId];
+        $thirdUserInfo['answers'][$userId] = [
+            'answer' => $answerTheQuestionsDto->answerToThirdUser,
+            'user_id' => $userId
+        ];
         $game->third_user_info = $thirdUserInfo;
 
         $game->save();
-
-        return true;
     }
 
     /**
      * @param int $selectLikeUserRequest
      * @param string $infoTheFieldUser
      * @param Game $game
-     * @return true
+     * @return void
      */
-    final public function selectLikeUser(int $selectLikeUserRequest, string $infoTheFieldUser, Game $game): true
+    final public function selectLikeUser(int $selectLikeUserRequest, string $infoTheFieldUser, Game $game): void
     {
         $userInfo = $game->{$infoTheFieldUser};
         $userInfo['select_user_id'] = $selectLikeUserRequest;
         $game->{$infoTheFieldUser} = $userInfo;
 
         $game->save();
+    }
 
-        return true;
+    /**
+     * @param int $gameId
+     * @return Game|null
+     */
+    final public function findGameById(int $gameId): ?Game
+    {
+        $game = Game::query()
+            ->where('id', '=', $gameId)
+            ->first();
+
+        if ($game instanceof Game) {
+            return $game;
+        }
+
+        return null;
     }
 }

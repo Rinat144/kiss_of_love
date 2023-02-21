@@ -9,21 +9,21 @@ use App\Services\Game\DTOs\AddAnswerTheQuestionsDto;
 use App\Services\Game\DTOs\CreateGameDto;
 use App\Services\Game\DTOs\SearchActiveGameDto;
 use App\Services\Game\Enum\ExceptionEnum;
-use App\Services\Game\Exception\NotFoundGameException;
 use App\Services\Game\Repositories\GameRepository;
+use App\Support\Exceptions\ApiException;
+use App\Support\GameHelper;
 use Illuminate\Contracts\Auth\Authenticatable;
 
-class GameService
+readonly class GameService
 {
     /**
      * @param GameRepository $gameRepository
      * @param User $user
      */
     public function __construct(
-        private readonly GameRepository $gameRepository,
+        private GameRepository $gameRepository,
         private Authenticatable $user,
     ) {
-        $this->user = auth()->user();
     }
 
     /**
@@ -42,7 +42,7 @@ class GameService
     /**
      * @param SearchActiveGameDto $searchActiveGameDto
      * @return Game|null
-     * @throws NotFoundGameException
+     * @throws ApiException
      */
     final public function searchActiveGame(SearchActiveGameDto $searchActiveGameDto): ?Game
     {
@@ -58,7 +58,7 @@ class GameService
         };
 
         if (!$game) {
-            throw new NotFoundGameException(ExceptionEnum::NO_ACTIVE_GAME->value);
+            throw new ApiException(ExceptionEnum::NO_ACTIVE_GAME->value);
         }
 
         return $this->distributeTheGameByGender($game, $searchActiveGameDto);
@@ -67,16 +67,15 @@ class GameService
     /**
      * @param int $gameId
      * @return Game|null
-     * @throws NotFoundGameException
+     * @throws ApiException
      */
     final public function getInfoAboutTheMatchPlayed(int $gameId): ?Game
     {
         $userId = $this->user->id;
-
         $infoAboutMatch = $this->gameRepository->getInfoAboutTheMatchPlayed($gameId, $userId);
 
         if (!$infoAboutMatch) {
-            throw new NotFoundGameException(ExceptionEnum::NOT_FOUND_GAME->value);
+            throw new ApiException(ExceptionEnum::NOT_FOUND_GAME->value);
         }
 
         return $infoAboutMatch;
@@ -84,20 +83,20 @@ class GameService
 
     /**
      * @param AddAnswerTheQuestionsDto $answerTheQuestionsDto
-     * @return true
-     * @throws NotFoundGameException
+     * @return void
+     * @throws ApiException
      */
-    final public function addAnswerTheQuestions(AddAnswerTheQuestionsDto $answerTheQuestionsDto): true
+    final public function addAnswerTheQuestions(AddAnswerTheQuestionsDto $answerTheQuestionsDto): void
     {
         $userId = $this->user->id;
 
         $gameActive = $this->getAnActiveGameForPlayer();
 
         if (!$gameActive) {
-            throw new NotFoundGameException(ExceptionEnum::NO_ACTIVE_GAME->value);
+            throw new ApiException(ExceptionEnum::NO_ACTIVE_GAME->value);
         }
 
-        return match ($this->user->gender) {
+        match ($this->user->gender) {
             GenderSelectionEnum::MAN => $this->gameRepository->updateAnswersToWoman(
                 $answerTheQuestionsDto,
                 $gameActive,
@@ -113,39 +112,22 @@ class GameService
 
     /**
      * @param int $selectLikeUserRequest
-     * @return true
-     * @throws NotFoundGameException
+     * @return void
+     * @throws ApiException
      */
-    final public function selectLikeUser(int $selectLikeUserRequest): true
+    final public function selectLikeUser(int $selectLikeUserRequest): void
     {
         $userId = $this->user->id;
 
         $activeGame = $this->getAnActiveGameForPlayer();
 
         if (!$activeGame) {
-            throw new NotFoundGameException(ExceptionEnum::NO_ACTIVE_GAME->value);
+            throw new ApiException(ExceptionEnum::NO_ACTIVE_GAME->value);
         }
 
-        $infoTheFieldUser = $this->getFieldInfoUser($activeGame, $userId);
+        $infoTheFieldUser = GameHelper::getFieldInfoUser($activeGame, $userId);
 
-        return $this->gameRepository->selectLikeUser($selectLikeUserRequest, $infoTheFieldUser, $activeGame);
-    }
-
-    /**
-     * @param Game $activeGame
-     * @param int $userId
-     * @return string
-     */
-    private function getFieldInfoUser(Game $activeGame, int $userId): string
-    {
-        return match ($userId) {
-            $activeGame->first_user_id => 'first_user_info',
-            $activeGame->second_user_id => 'second_user_info',
-            $activeGame->third_user_id => 'third_user_info',
-            $activeGame->fourth_user_id => 'fourth_user_info',
-            $activeGame->fifth_user_id => 'fifth_user_info',
-            $activeGame->sixth_user_id => 'sixth_user_info',
-        };
+        $this->gameRepository->selectLikeUser($selectLikeUserRequest, $infoTheFieldUser, $activeGame);
     }
 
     /**
