@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\GameController;
 use Illuminate\Support\Facades\Route;
@@ -31,4 +32,12 @@ Route::group([
     Route::post('/search_active', [GameController::class, 'searchActiveGame']);
     Route::post('/answer', [GameController::class, 'addAnswerTheQuestions']);
     Route::post('/like', [GameController::class, 'selectLikeUser']);
+});
+
+Route::group([
+    'prefix' => 'chat',
+    'middleware' => 'auth:api'
+], static function () {
+    Route::post('/create', [ChatController::class, 'chatCreate']);
+    Route::post('/send_message', [ChatController::class, 'sendMessage']);
 });
