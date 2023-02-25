@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property mixed|string $chat_id
  * @property mixed|string $user_id
  */
-class ChatPartipicant extends Model
+class ChatParticipant extends Model
 {
     use HasFactory;
 }

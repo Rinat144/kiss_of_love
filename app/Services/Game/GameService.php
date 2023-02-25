@@ -10,7 +10,7 @@ use App\Services\Game\DTOs\CreateGameDto;
 use App\Services\Game\DTOs\SearchActiveGameDto;
 use App\Services\Game\Enum\ExceptionEnum;
 use App\Services\Game\Repositories\GameRepository;
-use App\Support\Exceptions\ApiException;
+use App\Services\Game\Exceptions\GameApiException;
 use App\Support\GameHelper;
 use Illuminate\Contracts\Auth\Authenticatable;
 
@@ -42,7 +42,7 @@ readonly class GameService
     /**
      * @param SearchActiveGameDto $searchActiveGameDto
      * @return Game|null
-     * @throws ApiException
+     * @throws GameApiException
      */
     final public function searchActiveGame(SearchActiveGameDto $searchActiveGameDto): ?Game
     {
@@ -58,7 +58,7 @@ readonly class GameService
         };
 
         if (!$game) {
-            throw new ApiException(ExceptionEnum::NO_ACTIVE_GAME->value);
+            throw new GameApiException(ExceptionEnum::NO_ACTIVE_GAME);
         }
 
         return $this->distributeTheGameByGender($game, $searchActiveGameDto);
@@ -67,7 +67,7 @@ readonly class GameService
     /**
      * @param int $gameId
      * @return Game|null
-     * @throws ApiException
+     * @throws GameApiException
      */
     final public function getInfoAboutTheMatchPlayed(int $gameId): ?Game
     {
@@ -75,7 +75,7 @@ readonly class GameService
         $infoAboutMatch = $this->gameRepository->getInfoAboutTheMatchPlayed($gameId, $userId);
 
         if (!$infoAboutMatch) {
-            throw new ApiException(ExceptionEnum::NOT_FOUND_GAME->value);
+            throw new GameApiException(ExceptionEnum::NOT_FOUND_GAME);
         }
 
         return $infoAboutMatch;
@@ -84,7 +84,7 @@ readonly class GameService
     /**
      * @param AddAnswerTheQuestionsDto $answerTheQuestionsDto
      * @return void
-     * @throws ApiException
+     * @throws GameApiException
      */
     final public function addAnswerTheQuestions(AddAnswerTheQuestionsDto $answerTheQuestionsDto): void
     {
@@ -93,7 +93,7 @@ readonly class GameService
         $gameActive = $this->getAnActiveGameForPlayer();
 
         if (!$gameActive) {
-            throw new ApiException(ExceptionEnum::NO_ACTIVE_GAME->value);
+            throw new GameApiException(ExceptionEnum::NO_ACTIVE_GAME);
         }
 
         match ($this->user->gender) {
@@ -113,7 +113,7 @@ readonly class GameService
     /**
      * @param int $selectLikeUserRequest
      * @return void
-     * @throws ApiException
+     * @throws GameApiException
      */
     final public function selectLikeUser(int $selectLikeUserRequest): void
     {
@@ -122,7 +122,7 @@ readonly class GameService
         $activeGame = $this->getAnActiveGameForPlayer();
 
         if (!$activeGame) {
-            throw new ApiException(ExceptionEnum::NO_ACTIVE_GAME->value);
+            throw new GameApiException(ExceptionEnum::NO_ACTIVE_GAME);
         }
 
         $infoTheFieldUser = GameHelper::getFieldInfoUser($activeGame, $userId);

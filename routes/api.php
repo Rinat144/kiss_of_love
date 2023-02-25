@@ -40,4 +40,7 @@ Route::group([
 ], static function () {
     Route::post('/create', [ChatController::class, 'chatCreate']);
     Route::post('/send_message', [ChatController::class, 'sendMessage']);
+    Route::post('/specific', [ChatController::class, 'getSpecificChat']);
+    Route::get('/all', [ChatController::class, 'getAllChats']);
+    Route::delete('/delete/{chatId}', [ChatController::class, 'deleteChat']);
 });
