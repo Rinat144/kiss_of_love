@@ -7,7 +7,9 @@ use App\Services\Chat\Exceptions\ChatApiException;
 use App\Services\Chat\Requests\ChatCreateRequest;
 use App\Services\Chat\Requests\GetSpecificChatRequest;
 use App\Services\Chat\Requests\SendMessageRequest;
+use App\Services\Chat\Resources\ChatSpecificResource;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ChatController extends Controller
 {
@@ -46,16 +48,14 @@ class ChatController extends Controller
 
     /**
      * @param GetSpecificChatRequest $specificChatRequest
-     * @return JsonResponse
+     * @return AnonymousResourceCollection
      * @throws ChatApiException
      */
-    final public function getSpecificChat(GetSpecificChatRequest $specificChatRequest): JsonResponse
+    final public function getSpecificChat(GetSpecificChatRequest $specificChatRequest): AnonymousResourceCollection
     {
-        $this->chatService->getSpecificChat($specificChatRequest['chat_id']);
+       $chat = $this->chatService->getSpecificChat($specificChatRequest['chat_id']);
 
-        return response()->json([
-            'status' => true
-        ]);
+       return ChatSpecificResource::collection($chat);
     }
 
     /**

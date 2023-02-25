@@ -82,10 +82,10 @@ readonly class ChatService
 
     /**
      * @param int $chatId
-     * @return void
+     * @return Collection
      * @throws ChatApiException
      */
-    final public function getSpecificChat(int $chatId): void
+    final public function getSpecificChat(int $chatId): Collection
     {
         $chatWithChatParticipant = $this->chatRepository->searchChat($chatId);
 
@@ -94,10 +94,12 @@ readonly class ChatService
         }
 
         $allMessage = $this->messageRepositories->searchMessage($chatId);
+
         $userid = $this->user->id;
         $idOfAnotherParticipant = $allMessage->where('user_id', '!=', $userid)->value('user_id');
-
         $this->messageRepositories->changeMessageStatus($chatId, $idOfAnotherParticipant);
+
+        return $allMessage;
     }
 
     /**
@@ -138,7 +140,7 @@ readonly class ChatService
                 $groupedChats[] = [
                     'chat_id' => $value['chat_id'],
                     'user_id' => $value['user_id'],
-                    'count_message' => $value['count_messages'],
+                    'count_unread_message' => $value['count_messages'],
                 ];
                 unset($idChatsToPars[$value['chat_id']]);
             }
@@ -149,7 +151,7 @@ readonly class ChatService
                 $groupedChats[] = [
                     'chat_id' => $value['chat_id'],
                     'user_id' => $value['user_id'],
-                    'count_message' => 0,
+                    'count_unread_message' => 0,
                 ];
             }
         }
