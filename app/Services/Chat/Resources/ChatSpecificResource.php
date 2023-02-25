@@ -13,6 +13,7 @@ use JsonSerializable;
  * @property mixed $user_id
  * @property mixed $message
  * @property mixed $is_read
+ * @property mixed $updated_at
  */
 class ChatSpecificResource extends JsonResource
 {
@@ -30,6 +31,7 @@ class ChatSpecificResource extends JsonResource
             'user_id' => $this->user_id,
             'message' => $this->message,
             'is_read' => $this->is_read,
+            'updated_at' => $this->updated_at
         ];
     }
 }

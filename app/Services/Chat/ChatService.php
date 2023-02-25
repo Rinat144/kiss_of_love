@@ -99,7 +99,7 @@ readonly class ChatService
         $idOfAnotherParticipant = $allMessage->where('user_id', '!=', $userid)->value('user_id');
         $this->messageRepositories->changeMessageStatus($chatId, $idOfAnotherParticipant);
 
-        return $allMessage;
+        return $allMessage->sortByDesc('updated_at');
     }
 
     /**
