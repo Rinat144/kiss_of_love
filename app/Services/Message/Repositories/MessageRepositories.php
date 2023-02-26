@@ -3,7 +3,7 @@
 namespace App\Services\Message\Repositories;
 
 use App\Models\Message;
-use App\Services\Chat\DTOs\SendMessageDto;
+use App\Services\Message\DTOs\SendMessageDto;
 use Illuminate\Database\Eloquent\Collection;
 
 class MessageRepositories
@@ -28,7 +28,7 @@ class MessageRepositories
      * @param int $chatId
      * @return Collection
      */
-    final public function searchMessage(int $chatId): Collection
+    final public function searchMessagesByChatId(int $chatId): Collection
     {
         return Message::query()
             ->where('chat_id', '=', $chatId)
@@ -56,11 +56,12 @@ class MessageRepositories
     final public function searchAllMessage(Collection $allIdChats, int $userId): Collection
     {
         return Message::query()
-            ->select('user_id', 'chat_id', 'is_read')
             ->whereIn('chat_id', $allIdChats)
             ->where('user_id', '!=', $userId)
-            ->selectRaw('count(is_read) as count_messages, is_read, chat_id, user_id')
-            ->groupBy('is_read', 'chat_id', 'user_id')
+            ->selectRaw(
+                'sum(case when is_read = false then 1 else 0 end) as count_unread_message, user_id, chat_id'
+            )
+            ->groupBy('chat_id', 'user_id')
             ->get();
     }
 }

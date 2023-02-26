@@ -3,7 +3,7 @@
 namespace App\Services\ChatParticipant\Repositories;
 
 use App\Models\ChatParticipant;
-use App\Services\Chat\DTOs\SendMessageDto;
+use App\Services\Message\DTOs\SendMessageDto;
 use Illuminate\Database\Eloquent\Collection;
 
 class ChatParticipantRepository

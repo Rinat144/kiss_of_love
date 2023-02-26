@@ -19,13 +19,18 @@ class ChatRepository
 
     /**
      * @param int $chatId
+     * @param int $userId
      * @return bool
      */
-    final public function searchChat(int $chatId): bool
+    final public function chatExists(int $chatId,int $userId): bool
     {
-       return Chat::query()
+        return Chat::query()
             ->where('id', '=', $chatId)
-            ->with('chatPartipicants')
+            ->with([
+                'chatParticipants' => function ($q) use ($userId) {
+                    $q->where('user_id', '=', $userId);
+                }
+            ])
             ->exists();
     }
 
@@ -33,7 +38,7 @@ class ChatRepository
      * @param int $chatId
      * @return void
      */
-    final public function deleteChat(int $chatId): void
+    final public function destroy(int $chatId): void
     {
         Chat::query()
             ->where('id', '=', $chatId)

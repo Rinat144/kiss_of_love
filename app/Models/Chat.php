@@ -18,7 +18,7 @@ class Chat extends Model
     /**
      * @return HasMany
      */
-    final public function chatPartipicants(): HasMany
+    final public function chatParticipants(): HasMany
     {
         return $this->hasMany(ChatParticipant::class);
     }

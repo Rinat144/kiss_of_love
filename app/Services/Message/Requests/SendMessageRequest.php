@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services\Chat\Requests;
+namespace App\Services\Message\Requests;
 
-use App\Services\Chat\DTOs\SendMessageDto;
+use App\Services\Message\DTOs\SendMessageDto;
 use Illuminate\Foundation\Http\FormRequest;
 
 class SendMessageRequest extends FormRequest

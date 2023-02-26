@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\GameController;
+use App\Http\Controllers\MessageController;
 use Illuminate\Support\Facades\Route;
 
 Route::group([
@@ -38,9 +39,9 @@ Route::group([
     'prefix' => 'chat',
     'middleware' => 'auth:api'
 ], static function () {
-    Route::post('/create', [ChatController::class, 'chatCreate']);
-    Route::post('/send_message', [ChatController::class, 'sendMessage']);
+    Route::post('/store', [ChatController::class, 'store']);
+    Route::post('/send_message', [MessageController::class, 'sendMessage']);
     Route::post('/specific', [ChatController::class, 'getSpecificChat']);
-    Route::get('/all', [ChatController::class, 'getAllChats']);
-    Route::delete('/delete/{chatId}', [ChatController::class, 'deleteChat']);
+    Route::get('/all', [ChatController::class, 'index']);
+    Route::delete('/delete/{chatId}', [ChatController::class, 'destroy']);
 });

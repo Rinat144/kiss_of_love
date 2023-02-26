@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Chat\DTOs;
+namespace App\Services\Message\DTOs;
 
 class SendMessageDto
 {

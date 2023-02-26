@@ -4,13 +4,12 @@ namespace App\Services\Chat;
 
 use App\Models\Game;
 use App\Models\User;
-use App\Services\Chat\DTOs\SendMessageDto;
 use App\Services\Chat\Enum\ExceptionEnum;
+use App\Services\Chat\Exceptions\ChatApiException;
 use App\Services\Chat\Repositories\ChatRepository;
 use App\Services\ChatParticipant\Repositories\ChatParticipantRepository;
 use App\Services\Game\Repositories\GameRepository;
 use App\Services\Message\Repositories\MessageRepositories;
-use App\Services\Chat\Exceptions\ChatApiException;
 use App\Support\GameHelper;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Collection;
@@ -64,51 +63,34 @@ readonly class ChatService
     }
 
     /**
-     * @param SendMessageDto $sendMessageDto
-     * @return void
-     * @throws ChatApiException
-     */
-    final public function sendMessage(SendMessageDto $sendMessageDto): void
-    {
-        $userId = $this->user->id;
-        $isExistChatParticipant = $this->chatParticipantRepository->existChatParticipant($userId, $sendMessageDto);
-
-        if (!$isExistChatParticipant) {
-            throw new ChatApiException(ExceptionEnum::NO_ACTIVE_CHAT);
-        }
-
-        $this->messageRepositories->createNewMessage($sendMessageDto, $userId);
-    }
-
-    /**
      * @param int $chatId
      * @return Collection
      * @throws ChatApiException
      */
     final public function getSpecificChat(int $chatId): Collection
     {
-        $chatWithChatParticipant = $this->chatRepository->searchChat($chatId);
+        $userid = $this->user->id;
+        $chatWithChatParticipant = $this->chatRepository->chatExists($chatId, $userid);
 
         if (!$chatWithChatParticipant) {
             throw new ChatApiException(ExceptionEnum::NO_ACTIVE_CHAT);
         }
 
-        $allMessage = $this->messageRepositories->searchMessage($chatId);
+        $allMessages = $this->messageRepositories->searchMessagesByChatId($chatId);
 
-        $userid = $this->user->id;
-        $idOfAnotherParticipant = $allMessage->where('user_id', '!=', $userid)->value('user_id');
+        $idOfAnotherParticipant = $allMessages->where('user_id', '!=', $userid)->value('user_id');
         $this->messageRepositories->changeMessageStatus($chatId, $idOfAnotherParticipant);
 
-        return $allMessage->sortByDesc('updated_at');
+        return $allMessages->sortByDesc('created_at');
     }
 
     /**
      * @param int $chatId
      * @return void
      */
-    final public function deleteChat(int $chatId): void
+    final public function destroy(int $chatId): void
     {
-        $this->chatRepository->deleteChat($chatId);
+        $this->chatRepository->destroy($chatId);
     }
 
     /**
@@ -117,46 +99,9 @@ readonly class ChatService
     final public function getAllChats(): array
     {
         $userId = $this->user->id;
-
         $allIdChats = $this->chatParticipantRepository->gatAllIdChats($userId);
 
-        $allChats = $this->messageRepositories->searchAllMessage($allIdChats, $userId);
-
-        return $this->getGroupedChats($allChats);
-    }
-
-    /**
-     * @param Collection $allChats
-     * @return array
-     */
-    private function getGroupedChats(Collection $allChats): array
-    {
-        $idChatsToPars = $allChats->pluck('chat_id')->flip();
-
-        $groupedChats = [];
-
-        foreach ($allChats as $value) {
-            if ($value['is_read'] === false) {
-                $groupedChats[] = [
-                    'chat_id' => $value['chat_id'],
-                    'user_id' => $value['user_id'],
-                    'count_unread_message' => $value['count_messages'],
-                ];
-                unset($idChatsToPars[$value['chat_id']]);
-            }
-        }
-
-        foreach ($allChats as $value) {
-            if (isset($idChatsToPars[$value['chat_id']])) {
-                $groupedChats[] = [
-                    'chat_id' => $value['chat_id'],
-                    'user_id' => $value['user_id'],
-                    'count_unread_message' => 0,
-                ];
-            }
-        }
-
-        return $groupedChats;
+        return $this->messageRepositories->searchAllMessage($allIdChats, $userId)->toArray();
     }
 
     /**
