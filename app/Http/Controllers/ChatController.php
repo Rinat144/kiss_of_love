@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Services\Chat\ChatService;
 use App\Services\Chat\Exceptions\ChatApiException;
 use App\Services\Chat\Requests\ChatCreateRequest;
-use App\Services\Chat\Requests\GetSpecificChatRequest;
 use App\Services\Chat\Resources\ChatSpecificResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -32,13 +31,13 @@ class ChatController extends Controller
     }
 
     /**
-     * @param GetSpecificChatRequest $specificChatRequest
+     * @param int $chatId
      * @return AnonymousResourceCollection
      * @throws ChatApiException
      */
-    final public function getSpecificChat(GetSpecificChatRequest $specificChatRequest): AnonymousResourceCollection
+    final public function getSpecificChat(int $chatId): AnonymousResourceCollection
     {
-       $chat = $this->chatService->getSpecificChat($specificChatRequest['chat_id']);
+       $chat = $this->chatService->getSpecificChat($chatId);
 
        return ChatSpecificResource::collection($chat);
     }

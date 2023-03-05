@@ -3,7 +3,6 @@
 namespace App\Services\Chat;
 
 use App\Models\Game;
-use App\Models\User;
 use App\Services\Chat\Enum\ExceptionEnum;
 use App\Services\Chat\Exceptions\ChatApiException;
 use App\Services\Chat\Repositories\ChatRepository;
@@ -11,7 +10,7 @@ use App\Services\ChatParticipant\Repositories\ChatParticipantRepository;
 use App\Services\Game\Repositories\GameRepository;
 use App\Services\Message\Repositories\MessageRepositories;
 use App\Support\GameHelper;
-use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -22,14 +21,12 @@ readonly class ChatService
      * @param GameRepository $gameRepository
      * @param ChatParticipantRepository $chatParticipantRepository
      * @param MessageRepositories $messageRepositories
-     * @param User $user
      */
     public function __construct(
         private ChatRepository $chatRepository,
         private GameRepository $gameRepository,
         private ChatParticipantRepository $chatParticipantRepository,
         private MessageRepositories $messageRepositories,
-        private Authenticatable $user,
     ) {
     }
 
@@ -40,7 +37,7 @@ readonly class ChatService
      */
     final public function chatCreate(int $gameId): int
     {
-        $userId = $this->user->id;
+        $userId = Auth::id();
         $game = $this->gameRepository->findGameById($gameId);
 
         if (!$game) {
@@ -69,10 +66,10 @@ readonly class ChatService
      */
     final public function getSpecificChat(int $chatId): Collection
     {
-        $userid = $this->user->id;
-        $chatWithChatParticipant = $this->chatRepository->chatExists($chatId, $userid);
+        $userid = Auth::id();
+        $chatExist = $this->chatRepository->chatExists($chatId, $userid);
 
-        if (!$chatWithChatParticipant) {
+        if (!$chatExist) {
             throw new ChatApiException(ExceptionEnum::NO_ACTIVE_CHAT);
         }
 
@@ -98,7 +95,7 @@ readonly class ChatService
      */
     final public function getAllChats(): array
     {
-        $userId = $this->user->id;
+        $userId = Auth::id();
         $allIdChats = $this->chatParticipantRepository->gatAllIdChats($userId);
 
         return $this->messageRepositories->searchAllMessage($allIdChats, $userId)->toArray();

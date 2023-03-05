@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Game\Exceptions\GameApiException;
 use App\Services\Game\GameService;
 use App\Services\Game\Requests\AddAnswerTheQuestionsRequest;
 use App\Services\Game\Requests\CreateGameRequest;
@@ -10,7 +11,6 @@ use App\Services\Game\Requests\SelectLikeUserRequest;
 use App\Services\Game\Resources\GameResource;
 use App\Services\Game\Resources\GetInfoTheGameResource;
 use App\Services\Game\Resources\SearchActiveGameResource;
-use App\Support\Exceptions\ApiException;
 use Illuminate\Http\JsonResponse;
 
 class GameController extends Controller
@@ -37,7 +37,7 @@ class GameController extends Controller
     /**
      * @param int $gameId
      * @return GetInfoTheGameResource
-     * @throws ApiException
+     * @throws GameApiException
      */
     final public function getInfoTheGame(int $gameId): GetInfoTheGameResource
     {
@@ -49,7 +49,7 @@ class GameController extends Controller
     /**
      * @param SearchActiveGameRequest $searchActiveGameRequest
      * @return SearchActiveGameResource
-     * @throws ApiException
+     * @throws GameApiException
      */
     final public function searchActiveGame(SearchActiveGameRequest $searchActiveGameRequest): SearchActiveGameResource
     {
@@ -61,7 +61,7 @@ class GameController extends Controller
     /**
      * @param AddAnswerTheQuestionsRequest $answerTheQuestionsRequest
      * @return JsonResponse
-     * @throws ApiException
+     * @throws GameApiException
      */
     final public function addAnswerTheQuestions(AddAnswerTheQuestionsRequest $answerTheQuestionsRequest): JsonResponse
     {
@@ -75,7 +75,7 @@ class GameController extends Controller
     /**
      * @param SelectLikeUserRequest $selectLikeUserRequest
      * @return JsonResponse
-     * @throws ApiException
+     * @throws GameApiException
      */
     final public function selectLikeUser(SelectLikeUserRequest $selectLikeUserRequest): JsonResponse
     {

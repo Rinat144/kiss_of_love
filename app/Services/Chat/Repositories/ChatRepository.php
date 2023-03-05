@@ -22,7 +22,7 @@ class ChatRepository
      * @param int $userId
      * @return bool
      */
-    final public function chatExists(int $chatId,int $userId): bool
+    final public function chatExists(int $chatId, int $userId): bool
     {
         return Chat::query()
             ->where('id', '=', $chatId)

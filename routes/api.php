@@ -5,6 +5,7 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\UserAvatarController;
 use Illuminate\Support\Facades\Route;
 
 Route::group([
@@ -41,7 +42,16 @@ Route::group([
 ], static function () {
     Route::post('/store', [ChatController::class, 'store']);
     Route::post('/send_message', [MessageController::class, 'sendMessage']);
-    Route::post('/specific', [ChatController::class, 'getSpecificChat']);
+    Route::get('/specific/{chatId}', [ChatController::class, 'getSpecificChat']);
     Route::get('/all', [ChatController::class, 'index']);
     Route::delete('/delete/{chatId}', [ChatController::class, 'destroy']);
+});
+
+Route::group([
+    'prefix' => 'avatar',
+    'middleware' => 'auth:api',
+], static function () {
+    Route::post('/add', [UserAvatarController::class, 'store']);
+    Route::delete('/destroy/{id}', [UserAvatarController::class, 'destroy']);
+    Route::get('/all/{userId}', [UserAvatarController::class, 'showAll']);
 });
