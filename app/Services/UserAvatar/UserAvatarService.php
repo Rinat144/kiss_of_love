@@ -26,7 +26,7 @@ class UserAvatarService extends Controller
     final public function store(UserAvatarDto $userAvatarDto): void
     {
         $userId = Auth::id();
-        $infoFilePath = Storage::put('/avatars/' . $userId, $userAvatarDto->image);
+        $infoFilePath = Storage::disk('avatars')->put($userId, $userAvatarDto->image);
 
         $this->userAvatarRepository->storeFilePath($userId, $infoFilePath);
     }
@@ -45,7 +45,7 @@ class UserAvatarService extends Controller
      * @param int $userId
      * @return Collection
      */
-    final public function showAll(int $userId): Collection
+    final public function index(int $userId): Collection
     {
         return $this->userAvatarRepository->showAll($userId);
     }

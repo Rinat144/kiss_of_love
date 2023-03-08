@@ -53,5 +53,5 @@ Route::group([
 ], static function () {
     Route::post('/add', [UserAvatarController::class, 'store']);
     Route::delete('/destroy/{id}', [UserAvatarController::class, 'destroy']);
-    Route::get('/all/{userId}', [UserAvatarController::class, 'showAll']);
+    Route::get('/all/{userId}', [UserAvatarController::class, 'index']);
 });

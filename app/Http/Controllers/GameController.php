@@ -11,10 +11,13 @@ use App\Services\Game\Requests\SelectLikeUserRequest;
 use App\Services\Game\Resources\GameResource;
 use App\Services\Game\Resources\GetInfoTheGameResource;
 use App\Services\Game\Resources\SearchActiveGameResource;
+use App\Support\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
 
 class GameController extends Controller
 {
+    use ApiResponseTrait;
+
     /**
      * @param GameService $gameService
      */
@@ -67,9 +70,7 @@ class GameController extends Controller
     {
         $this->gameService->addAnswerTheQuestions($answerTheQuestionsRequest->getDto());
 
-        return response()->json([
-            'status' => true,
-        ]);
+        return self::statusResponse();
     }
 
     /**
@@ -81,8 +82,6 @@ class GameController extends Controller
     {
         $this->gameService->selectLikeUser($selectLikeUserRequest['select_user_id']);
 
-        return response()->json([
-            'status' => true,
-        ]);
+        return self::statusResponse();
     }
 }

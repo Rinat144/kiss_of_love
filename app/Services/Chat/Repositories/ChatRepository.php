@@ -25,12 +25,9 @@ class ChatRepository
     final public function chatExists(int $chatId, int $userId): bool
     {
         return Chat::query()
-            ->where('id', '=', $chatId)
-            ->with([
-                'chatParticipants' => function ($q) use ($userId) {
-                    $q->where('user_id', '=', $userId);
-                }
-            ])
+            ->join('chat_participants', 'chat_participants.chat_id', '=', 'chats.id')
+            ->where('chats.id', '=', $chatId)
+            ->where('chat_participants.user_id', '=', $userId)
             ->exists();
     }
 

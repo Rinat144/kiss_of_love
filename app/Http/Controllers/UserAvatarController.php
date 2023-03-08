@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use App\Services\UserAvatar\Requests\UserAvatarRequest;
 use App\Services\UserAvatar\Resources\UserAvatarAllResource;
 use App\Services\UserAvatar\UserAvatarService;
+use App\Support\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class UserAvatarController extends Controller
 {
+    use ApiResponseTrait;
+
     /**
      * @param UserAvatarService $userAvatarService
      */
@@ -26,9 +29,7 @@ class UserAvatarController extends Controller
     {
         $this->userAvatarService->store($userAvatarRequest->getDto());
 
-        return response()->json([
-            'status' => true,
-        ]);
+        return self::statusResponse();
     }
 
     /**
@@ -39,18 +40,16 @@ class UserAvatarController extends Controller
     {
         $this->userAvatarService->destroy($id);
 
-        return response()->json([
-            'status' => true,
-        ]);
+        return self::statusResponse();
     }
 
     /**
      * @param int $userId
      * @return AnonymousResourceCollection
      */
-    final public function showAll(int $userId): AnonymousResourceCollection
+    final public function index(int $userId): AnonymousResourceCollection
     {
-        $dataUserAvatar = $this->userAvatarService->showAll($userId);
+        $dataUserAvatar = $this->userAvatarService->index($userId);
 
         return UserAvatarAllResource::collection($dataUserAvatar);
     }

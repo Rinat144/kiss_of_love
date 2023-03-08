@@ -6,11 +6,17 @@ use App\Services\Chat\ChatService;
 use App\Services\Chat\Exceptions\ChatApiException;
 use App\Services\Chat\Requests\ChatCreateRequest;
 use App\Services\Chat\Resources\ChatSpecificResource;
+use App\Support\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ChatController extends Controller
 {
+    use ApiResponseTrait;
+
+    /**
+     * @param ChatService $chatService
+     */
     public function __construct(
         private readonly ChatService $chatService,
     ) {
@@ -37,9 +43,9 @@ class ChatController extends Controller
      */
     final public function getSpecificChat(int $chatId): AnonymousResourceCollection
     {
-       $chat = $this->chatService->getSpecificChat($chatId);
+        $chat = $this->chatService->getSpecificChat($chatId);
 
-       return ChatSpecificResource::collection($chat);
+        return ChatSpecificResource::collection($chat);
     }
 
     /**
@@ -62,8 +68,6 @@ class ChatController extends Controller
     {
         $this->chatService->destroy($chatId);
 
-        return response()->json([
-            'status' => true
-        ]);
+        return self::statusResponse();
     }
 }

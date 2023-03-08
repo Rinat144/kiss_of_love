@@ -9,15 +9,15 @@ class UserAvatarRepository
 {
     /**
      * @param int $userId
-     * @param string $infoFilePath
+     * @param string $filePath
      * @return void
      */
-    final public function storeFilePath(int $userId, string $infoFilePath): void
+    final public function storeFilePath(int $userId, string $filePath): void
     {
         $userAvatar = new UserAvatar();
 
         $userAvatar->user_id = $userId;
-        $userAvatar->image = $infoFilePath;
+        $userAvatar->image = $filePath;
 
         $userAvatar->save();
     }
@@ -44,6 +44,7 @@ class UserAvatarRepository
         return UserAvatar::query()
             ->where('user_id', '=', $userId)
             ->select('id', 'image', 'created_at')
+            ->latest()
             ->get();
     }
 }
