@@ -68,6 +68,6 @@ class ChatController extends Controller
     {
         $this->chatService->destroy($chatId);
 
-        return self::statusResponse();
+        return self::statusResponse(true);
     }
 }

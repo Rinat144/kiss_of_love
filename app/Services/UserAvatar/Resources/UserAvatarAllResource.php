@@ -2,6 +2,7 @@
 
 namespace App\Services\UserAvatar\Resources;
 
+use App\Support\StorageDiskEnum;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -14,7 +15,7 @@ use JsonSerializable;
  */
 class UserAvatarAllResource extends JsonResource
 {
-    private const PATH_AVATAR = 'storage/avatars/';
+    private const PATH_AVATAR = 'storage/';
 
     /**
      * Transform the resource into an array.
@@ -26,7 +27,7 @@ class UserAvatarAllResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'image' => asset(self::PATH_AVATAR . $this->image),
+            'image' => asset(self::PATH_AVATAR . StorageDiskEnum::PATH_AVATAR->value . '/' . $this->image),
             'created_at' => $this->created_at,
         ];
     }

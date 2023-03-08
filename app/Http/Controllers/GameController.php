@@ -70,7 +70,7 @@ class GameController extends Controller
     {
         $this->gameService->addAnswerTheQuestions($answerTheQuestionsRequest->getDto());
 
-        return self::statusResponse();
+        return self::statusResponse(true);
     }
 
     /**
@@ -82,6 +82,6 @@ class GameController extends Controller
     {
         $this->gameService->selectLikeUser($selectLikeUserRequest['select_user_id']);
 
-        return self::statusResponse();
+        return self::statusResponse(true);
     }
 }

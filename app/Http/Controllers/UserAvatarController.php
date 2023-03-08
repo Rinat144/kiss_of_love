@@ -29,7 +29,7 @@ class UserAvatarController extends Controller
     {
         $this->userAvatarService->store($userAvatarRequest->getDto());
 
-        return self::statusResponse();
+        return self::statusResponse(true);
     }
 
     /**
@@ -40,7 +40,7 @@ class UserAvatarController extends Controller
     {
         $this->userAvatarService->destroy($id);
 
-        return self::statusResponse();
+        return self::statusResponse(true);
     }
 
     /**

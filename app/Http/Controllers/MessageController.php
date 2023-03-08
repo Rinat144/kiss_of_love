@@ -29,6 +29,6 @@ class MessageController extends Controller
     {
         $this->messageService->sendMessage($sendMessageRequest->getDto());
 
-        return self::statusResponse();
+        return self::statusResponse(true);
     }
 }
