@@ -1,8 +1,11 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\GameController;
+use App\Http\Controllers\MessageController;
+use App\Http\Controllers\UserAvatarController;
 use Illuminate\Support\Facades\Route;
 
 Route::group([
@@ -31,4 +34,24 @@ Route::group([
     Route::post('/search_active', [GameController::class, 'searchActiveGame']);
     Route::post('/answer', [GameController::class, 'addAnswerTheQuestions']);
     Route::post('/like', [GameController::class, 'selectLikeUser']);
+});
+
+Route::group([
+    'prefix' => 'chat',
+    'middleware' => 'auth:api'
+], static function () {
+    Route::post('/store', [ChatController::class, 'store']);
+    Route::post('/send_message', [MessageController::class, 'sendMessage']);
+    Route::get('/specific/{chatId}', [ChatController::class, 'getSpecificChat']);
+    Route::get('/all', [ChatController::class, 'index']);
+    Route::delete('/delete/{chatId}', [ChatController::class, 'destroy']);
+});
+
+Route::group([
+    'prefix' => 'avatar',
+    'middleware' => 'auth:api',
+], static function () {
+    Route::post('/add', [UserAvatarController::class, 'store']);
+    Route::delete('/destroy/{id}', [UserAvatarController::class, 'destroy']);
+    Route::get('/all/{userId}', [UserAvatarController::class, 'index']);
 });

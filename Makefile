@@ -20,7 +20,7 @@ migrations:
 	docker-compose run --rm php php artisan migrate
 
 permissions:
-	chmod -R 777 ./storage
+	sudo chmod -R 777 ./storage
 
 restart:
 	make down

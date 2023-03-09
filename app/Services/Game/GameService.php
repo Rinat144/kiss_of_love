@@ -3,27 +3,24 @@
 namespace App\Services\Game;
 
 use App\Models\Game;
-use App\Models\User;
 use App\Services\Auth\Enum\GenderSelectionEnum;
 use App\Services\Game\DTOs\AddAnswerTheQuestionsDto;
 use App\Services\Game\DTOs\CreateGameDto;
 use App\Services\Game\DTOs\SearchActiveGameDto;
 use App\Services\Game\Enum\ExceptionEnum;
-use App\Services\Game\Exception\NotFoundGameException;
 use App\Services\Game\Repositories\GameRepository;
-use Illuminate\Contracts\Auth\Authenticatable;
+use App\Services\Game\Exceptions\GameApiException;
+use App\Support\GameHelper;
+use Illuminate\Support\Facades\Auth;
 
-class GameService
+readonly class GameService
 {
     /**
      * @param GameRepository $gameRepository
-     * @param User $user
      */
     public function __construct(
-        private readonly GameRepository $gameRepository,
-        private Authenticatable $user,
+        private GameRepository $gameRepository,
     ) {
-        $this->user = auth()->user();
     }
 
     /**
@@ -32,7 +29,7 @@ class GameService
      */
     final public function createGame(CreateGameDto $createGameDto): Game
     {
-        if ($this->user->gender === GenderSelectionEnum::MAN) {
+        if (Auth::user()->gender === GenderSelectionEnum::MAN) {
             return $this->gameRepository->createGameMan($createGameDto);
         }
 
@@ -42,7 +39,7 @@ class GameService
     /**
      * @param SearchActiveGameDto $searchActiveGameDto
      * @return Game|null
-     * @throws NotFoundGameException
+     * @throws GameApiException
      */
     final public function searchActiveGame(SearchActiveGameDto $searchActiveGameDto): ?Game
     {
@@ -52,13 +49,13 @@ class GameService
             return $game;
         }
 
-        $game = match ($this->user->gender) {
+        $game = match (Auth::user()->gender) {
             GenderSelectionEnum::MAN => $this->gameRepository->findGameForMan(),
             GenderSelectionEnum::WOMAN => $this->gameRepository->findGameForWoman(),
         };
 
         if (!$game) {
-            throw new NotFoundGameException(ExceptionEnum::NO_ACTIVE_GAME->value);
+            throw new GameApiException(ExceptionEnum::NO_ACTIVE_GAME);
         }
 
         return $this->distributeTheGameByGender($game, $searchActiveGameDto);
@@ -67,16 +64,15 @@ class GameService
     /**
      * @param int $gameId
      * @return Game|null
-     * @throws NotFoundGameException
+     * @throws GameApiException
      */
     final public function getInfoAboutTheMatchPlayed(int $gameId): ?Game
     {
-        $userId = $this->user->id;
-
+        $userId = Auth::id();
         $infoAboutMatch = $this->gameRepository->getInfoAboutTheMatchPlayed($gameId, $userId);
 
         if (!$infoAboutMatch) {
-            throw new NotFoundGameException(ExceptionEnum::NOT_FOUND_GAME->value);
+            throw new GameApiException(ExceptionEnum::NOT_FOUND_GAME);
         }
 
         return $infoAboutMatch;
@@ -84,20 +80,20 @@ class GameService
 
     /**
      * @param AddAnswerTheQuestionsDto $answerTheQuestionsDto
-     * @return true
-     * @throws NotFoundGameException
+     * @return void
+     * @throws GameApiException
      */
-    final public function addAnswerTheQuestions(AddAnswerTheQuestionsDto $answerTheQuestionsDto): true
+    final public function addAnswerTheQuestions(AddAnswerTheQuestionsDto $answerTheQuestionsDto): void
     {
-        $userId = $this->user->id;
+        $userId = Auth::id();
 
         $gameActive = $this->getAnActiveGameForPlayer();
 
         if (!$gameActive) {
-            throw new NotFoundGameException(ExceptionEnum::NO_ACTIVE_GAME->value);
+            throw new GameApiException(ExceptionEnum::NO_ACTIVE_GAME);
         }
 
-        return match ($this->user->gender) {
+        match (Auth::user()->gender) {
             GenderSelectionEnum::MAN => $this->gameRepository->updateAnswersToWoman(
                 $answerTheQuestionsDto,
                 $gameActive,
@@ -113,39 +109,22 @@ class GameService
 
     /**
      * @param int $selectLikeUserRequest
-     * @return true
-     * @throws NotFoundGameException
+     * @return void
+     * @throws GameApiException
      */
-    final public function selectLikeUser(int $selectLikeUserRequest): true
+    final public function selectLikeUser(int $selectLikeUserRequest): void
     {
-        $userId = $this->user->id;
+        $userId = Auth::id();
 
         $activeGame = $this->getAnActiveGameForPlayer();
 
         if (!$activeGame) {
-            throw new NotFoundGameException(ExceptionEnum::NO_ACTIVE_GAME->value);
+            throw new GameApiException(ExceptionEnum::NO_ACTIVE_GAME);
         }
 
-        $infoTheFieldUser = $this->getFieldInfoUser($activeGame, $userId);
+        $infoTheFieldUser = GameHelper::getFieldInfoUser($activeGame, $userId);
 
-        return $this->gameRepository->selectLikeUser($selectLikeUserRequest, $infoTheFieldUser, $activeGame);
-    }
-
-    /**
-     * @param Game $activeGame
-     * @param int $userId
-     * @return string
-     */
-    private function getFieldInfoUser(Game $activeGame, int $userId): string
-    {
-        return match ($userId) {
-            $activeGame->first_user_id => 'first_user_info',
-            $activeGame->second_user_id => 'second_user_info',
-            $activeGame->third_user_id => 'third_user_info',
-            $activeGame->fourth_user_id => 'fourth_user_info',
-            $activeGame->fifth_user_id => 'fifth_user_info',
-            $activeGame->sixth_user_id => 'sixth_user_info',
-        };
+        $this->gameRepository->selectLikeUser($selectLikeUserRequest, $infoTheFieldUser, $activeGame);
     }
 
     /**
@@ -153,9 +132,9 @@ class GameService
      */
     private function getAnActiveGameForPlayer(): ?Game
     {
-        return match ($this->user->gender) {
-            GenderSelectionEnum::MAN => $this->gameRepository->getAnActiveGameForMan($this->user->id),
-            GenderSelectionEnum::WOMAN => $this->gameRepository->getAnActiveGameForWoman($this->user->id),
+        return match (Auth::user()->gender) {
+            GenderSelectionEnum::MAN => $this->gameRepository->getAnActiveGameForMan(Auth::id()),
+            GenderSelectionEnum::WOMAN => $this->gameRepository->getAnActiveGameForWoman(Auth::id()),
         };
     }
 
@@ -166,7 +145,7 @@ class GameService
      */
     private function distributeTheGameByGender(Game $game, SearchActiveGameDto $searchActiveGameDto): ?Game
     {
-        if ($this->user->gender === GenderSelectionEnum::MAN) {
+        if (Auth::user()->gender === GenderSelectionEnum::MAN) {
             return $this->includeUserGameForMan($game, $searchActiveGameDto);
         }
 

@@ -11,12 +11,14 @@ use Laravel\Sanctum\HasApiTokens;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 /**
- * @property mixed $gender
+ * @property GenderSelectionEnum $gender
  * @property mixed $id
  */
 class User extends Authenticatable implements JWTSubject
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens;
+    use HasFactory;
+    use Notifiable;
 
     /**
      * @var string[]
@@ -53,7 +55,7 @@ class User extends Authenticatable implements JWTSubject
     /**
      * @return mixed
      */
-    public function getJWTIdentifier(): mixed
+    final public function getJWTIdentifier(): mixed
     {
         return $this->getKey();
     }
@@ -61,7 +63,7 @@ class User extends Authenticatable implements JWTSubject
     /**
      * @return array
      */
-    public function getJWTCustomClaims(): array
+    final public function getJWTCustomClaims(): array
     {
         return [];
     }

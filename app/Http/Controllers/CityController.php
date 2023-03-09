@@ -13,8 +13,7 @@ class CityController extends Controller
      */
     public function __construct(
         private readonly CityService $cityService,
-    )
-    {
+    ) {
     }
 
     /**

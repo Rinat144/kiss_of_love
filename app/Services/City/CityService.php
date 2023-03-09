@@ -12,8 +12,7 @@ readonly class CityService
      */
     public function __construct(
         private CityRepository $cityRepository
-    )
-    {
+    ) {
     }
 
     /**
