@@ -5,6 +5,7 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserAvatarController;
 use Illuminate\Support\Facades\Route;
 
@@ -54,4 +55,11 @@ Route::group([
     Route::post('/add', [UserAvatarController::class, 'store']);
     Route::delete('/destroy/{id}', [UserAvatarController::class, 'destroy']);
     Route::get('/all/{userId}', [UserAvatarController::class, 'index']);
+});
+
+Route::group([
+    'prefix' => 'product',
+    'middleware' => 'auth:api',
+], static function () {
+    Route::get('/all', [ProductController::class, 'index']);
 });
