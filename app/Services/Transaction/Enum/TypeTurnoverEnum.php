@@ -2,8 +2,8 @@
 
 namespace App\Services\Transaction\Enum;
 
-enum TypeTurnoverEnum: string
+enum TypeTurnoverEnum: int
 {
-    case INFLOW = "inflow";
-    case OUTLAY = 'outlay';
+    case INFLOW = 1;
+    case OUTLAY = 2;
 }

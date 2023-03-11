@@ -13,7 +13,7 @@ class ProductRepository
     final public function index(): Collection
     {
         return Product::query()
-            ->select('name', 'amount', 'discount', 'donate_price')
+            ->select('id', 'name', 'amount', 'discount', 'donate_price', 'created_at')
             ->get();
     }
 }

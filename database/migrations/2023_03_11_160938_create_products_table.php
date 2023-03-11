@@ -18,10 +18,10 @@ return new class extends Migration {
             $table->integer('amount')->default(0);
             $table->integer('discount')->nullable();
             $table->boolean('is_active')->default(false);
-            $table->string('app_store_product_id');
-            $table->string('google_play_product_id');
+            $table->string('app_store_product_id')->nullable();
+            $table->string('google_play_product_id')->nullable();
             $table->boolean('is_show')->default(false);
-            $table->integer('donate_price')->default(0);
+            $table->float('donate_price')->default(0);
             $table->timestamps();
         });
     }
