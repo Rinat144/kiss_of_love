@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Services\Chat\ChatService;
 use App\Services\Chat\Exceptions\ChatApiException;
 use App\Services\Chat\Requests\ChatCreateRequest;
+use App\Services\Chat\Requests\StoreBuyChatRequest;
 use App\Services\Chat\Resources\ChatSpecificResource;
+use App\Services\User\Exceptions\UserApiException;
 use App\Support\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -69,5 +71,19 @@ class ChatController extends Controller
         $this->chatService->destroy($chatId);
 
         return self::statusResponse(true);
+    }
+
+    /**
+     * @param StoreBuyChatRequest $storeBuyChatRequest
+     * @return JsonResponse
+     * @throws UserApiException
+     */
+    final public function storeBuyChat(StoreBuyChatRequest $storeBuyChatRequest): JsonResponse
+    {
+        $chatId = $this->chatService->storeBuyChat($storeBuyChatRequest->getDto());
+
+        return response()->json([
+            'chat_id' => $chatId,
+        ]);
     }
 }

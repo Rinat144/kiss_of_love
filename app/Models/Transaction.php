@@ -6,6 +6,14 @@ use App\Services\Transaction\Enum\TypeTurnoverEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property mixed|string $user_id
+ * @property mixed|string $product_id
+ * @property mixed|string $amount_before
+ * @property mixed|string $amount_after
+ * @property mixed|string $amount
+ * @property mixed|string $type
+ */
 class Transaction extends Model
 {
     use HasFactory;

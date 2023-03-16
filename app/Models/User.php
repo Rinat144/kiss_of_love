@@ -13,6 +13,7 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 /**
  * @property GenderSelectionEnum $gender
  * @property mixed $id
+ * @property mixed $balance
  */
 class User extends Authenticatable implements JWTSubject
 {

@@ -3,12 +3,17 @@
 namespace App\Services\Chat;
 
 use App\Models\Game;
+use App\Services\Chat\DTOs\StoreBuyChatDto;
 use App\Services\Chat\Enum\ExceptionEnum;
 use App\Services\Chat\Exceptions\ChatApiException;
 use App\Services\Chat\Repositories\ChatRepository;
 use App\Services\ChatParticipant\Repositories\ChatParticipantRepository;
 use App\Services\Game\Repositories\GameRepository;
 use App\Services\Message\Repositories\MessageRepositories;
+use App\Services\Product\ProductService;
+use App\Services\Transaction\Repositories\TransactionRepository;
+use App\Services\User\Exceptions\UserApiException;
+use App\Services\User\UserService;
 use App\Support\GameHelper;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Collection;
@@ -21,12 +26,18 @@ readonly class ChatService
      * @param GameRepository $gameRepository
      * @param ChatParticipantRepository $chatParticipantRepository
      * @param MessageRepositories $messageRepositories
+     * @param TransactionRepository $transactionRepository
+     * @param UserService $userService
+     * @param ProductService $productService
      */
     public function __construct(
         private ChatRepository $chatRepository,
         private GameRepository $gameRepository,
         private ChatParticipantRepository $chatParticipantRepository,
         private MessageRepositories $messageRepositories,
+        private TransactionRepository $transactionRepository,
+        private UserService $userService,
+        private ProductService $productService,
     ) {
     }
 
@@ -99,6 +110,34 @@ readonly class ChatService
         $allIdChats = $this->chatParticipantRepository->gatAllIdChats($userId);
 
         return $this->messageRepositories->searchAllMessage($allIdChats, $userId)->toArray();
+    }
+
+    /**
+     * @param StoreBuyChatDto $dto
+     * @return int
+     * @throws UserApiException
+     */
+    final public function storeBuyChat(StoreBuyChatDto $dto): int
+    {
+        $userId = Auth::id();
+
+        $amountProduct = $this->productService->getInfoProduct($dto->product_id);
+        $infoBalance = $this->userService->getValueBalance($amountProduct);
+
+        return DB::transaction(function () use ($dto, $userId, $infoBalance, $amountProduct) {
+            $this->userService->updateUserBalance($userId, $infoBalance, $amountProduct);
+            $this->transactionRepository->storeTransactionBuyChat(
+                $userId,
+                $dto->product_id,
+                $infoBalance,
+                $amountProduct
+            );
+            $chatId = $this->chatRepository->chatCreate()->id;
+            $this->chatParticipantRepository->chatParticipantCreate($chatId, $userId);
+            $this->chatParticipantRepository->chatParticipantCreate($chatId, $dto->selected_user_id);
+
+            return $chatId;
+        });
     }
 
     /**
