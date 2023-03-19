@@ -4,7 +4,6 @@ namespace App\Services\Product\Repositories;
 
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 
 class ProductRepository
 {
@@ -20,12 +19,12 @@ class ProductRepository
 
     /**
      * @param int $productId
-     * @return Model
+     * @return int|float
      */
-    final public function getInfoProduct(int $productId): Model
+    final public function getProduct(int $productId): int|float
     {
         return Product::query()
             ->where('id', '=', $productId)
-            ->first();
+            ->value('amount');
     }
 }

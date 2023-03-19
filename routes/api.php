@@ -46,7 +46,7 @@ Route::group([
     Route::get('/specific/{chatId}', [ChatController::class, 'getSpecificChat']);
     Route::get('/all', [ChatController::class, 'index']);
     Route::delete('/delete/{chatId}', [ChatController::class, 'destroy']);
-    Route::post('/buy_chat', [ChatController::class, 'storeBuyChat']);
+    Route::post('/buy', [ChatController::class, 'storeBuyChat']);
 });
 
 Route::group([

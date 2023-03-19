@@ -10,7 +10,7 @@ use App\Services\Chat\Repositories\ChatRepository;
 use App\Services\ChatParticipant\Repositories\ChatParticipantRepository;
 use App\Services\Game\Repositories\GameRepository;
 use App\Services\Message\Repositories\MessageRepositories;
-use App\Services\Product\ProductService;
+use App\Services\Product\Repositories\ProductRepository;
 use App\Services\Transaction\Repositories\TransactionRepository;
 use App\Services\User\Exceptions\UserApiException;
 use App\Services\User\UserService;
@@ -28,7 +28,7 @@ readonly class ChatService
      * @param MessageRepositories $messageRepositories
      * @param TransactionRepository $transactionRepository
      * @param UserService $userService
-     * @param ProductService $productService
+     * @param ProductRepository $productRepository
      */
     public function __construct(
         private ChatRepository $chatRepository,
@@ -37,7 +37,7 @@ readonly class ChatService
         private MessageRepositories $messageRepositories,
         private TransactionRepository $transactionRepository,
         private UserService $userService,
-        private ProductService $productService,
+        private ProductRepository $productRepository,
     ) {
     }
 
@@ -116,20 +116,22 @@ readonly class ChatService
      * @param StoreBuyChatDto $dto
      * @return int
      * @throws UserApiException
+     * @throws ChatApiException
      */
     final public function storeBuyChat(StoreBuyChatDto $dto): int
     {
         $userId = Auth::id();
 
-        $amountProduct = $this->productService->getInfoProduct($dto->product_id);
-        $infoBalance = $this->userService->getValueBalance($amountProduct);
+        $amountProduct = $this->productRepository->getProduct(config('product.buy_chat'));
+        $userBalance = $this->userService->getBalance($amountProduct);
+        $this->checkIdParticipationGame($dto, $userId);
 
-        return DB::transaction(function () use ($dto, $userId, $infoBalance, $amountProduct) {
-            $this->userService->updateUserBalance($userId, $infoBalance, $amountProduct);
-            $this->transactionRepository->storeTransactionBuyChat(
+        return DB::transaction(function () use ($dto, $userId, $userBalance, $amountProduct) {
+            $this->userService->updateOutlayUserBalance($userId, $userBalance, $amountProduct);
+            $this->transactionRepository->storeOutlayTransaction(
                 $userId,
-                $dto->product_id,
-                $infoBalance,
+                config('product.buy_chat'),
+                $userBalance,
                 $amountProduct
             );
             $chatId = $this->chatRepository->chatCreate()->id;
@@ -138,6 +140,29 @@ readonly class ChatService
 
             return $chatId;
         });
+    }
+
+    /**
+     * @param StoreBuyChatDto $dto
+     * @param int $userId
+     * @return void
+     * @throws ChatApiException
+     * @noinspection PhpIllegalStringOffsetInspection
+     */
+    private function checkIdParticipationGame(StoreBuyChatDto $dto, int $userId): void
+    {
+        $game = $this->gameRepository->findGameById($dto->game_id);
+
+        if (!$game) {
+            throw new ChatApiException(ExceptionEnum::NO_ACTIVE_GAME);
+        }
+
+        $infoFieldUser = GameHelper::getFieldInfoUser($game, $dto->selected_user_id);
+        $idTheSelectedUser = $game->$infoFieldUser['select_user_id'];
+
+        if ($userId !== $idTheSelectedUser) {
+            throw new ChatApiException(ExceptionEnum::NO_ID_GAME_USER);
+        }
     }
 
     /**

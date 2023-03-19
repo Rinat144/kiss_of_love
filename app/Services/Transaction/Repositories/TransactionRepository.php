@@ -14,7 +14,7 @@ class TransactionRepository
      * @param int $amountProduct
      * @return void
      */
-    final public function storeTransactionBuyChat(
+    final public function storeOutlayTransaction(
         int $userId,
         int $productId,
         int $infoBalance,
@@ -31,5 +31,4 @@ class TransactionRepository
 
         $transaction->save();
     }
-
 }

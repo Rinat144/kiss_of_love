@@ -77,13 +77,12 @@ class ChatController extends Controller
      * @param StoreBuyChatRequest $storeBuyChatRequest
      * @return JsonResponse
      * @throws UserApiException
+     * @throws ChatApiException
      */
     final public function storeBuyChat(StoreBuyChatRequest $storeBuyChatRequest): JsonResponse
     {
         $chatId = $this->chatService->storeBuyChat($storeBuyChatRequest->getDto());
 
-        return response()->json([
-            'chat_id' => $chatId,
-        ]);
+        return self::dataResponse(['chat_id' => $chatId]);
     }
 }

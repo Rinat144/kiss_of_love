@@ -26,7 +26,7 @@ class StoreBuyChatRequest extends FormRequest
     {
         return [
             'selected_user_id' => ['required', 'integer'],
-            'product_id' => ['required', 'integer'],
+            'game_id' => ['required', 'integer'],
         ];
     }
 
@@ -37,7 +37,7 @@ class StoreBuyChatRequest extends FormRequest
     {
         return new StoreBuyChatDto(
             selected_user_id: $this->get('selected_user_id'),
-            product_id: $this->get('product_id'),
+            game_id: $this->get('game_id'),
         );
     }
 }

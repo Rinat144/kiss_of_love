@@ -2,7 +2,7 @@
 
 namespace App\Services\User;
 
-use App\Services\User\Enum\StatusBalanceEnum;
+use App\Services\User\Enum\ExceptionEnum;
 use App\Services\User\Exceptions\UserApiException;
 use App\Services\User\Repositories\UserRepository;
 use Illuminate\Support\Facades\Auth;
@@ -22,27 +22,27 @@ class UserService
      * @return int
      * @throws UserApiException
      */
-    final public function getValueBalance(int $sum): int
+    final public function getBalance(int $sum): int
     {
-        $userId = Auth::id();
-        $infoBalance = $this->userRepository->getValueBalance($userId, $sum);
+        $userBalance = Auth::user()->balance;
+        $infoBalance = $userBalance >= $sum;
 
         if (!$infoBalance) {
-            throw new UserApiException(StatusBalanceEnum::NOT_ENOUGH_MONEY);
+            throw new UserApiException(ExceptionEnum::NOT_ENOUGH_MONEY);
         }
 
-        return $infoBalance;
+        return $userBalance;
     }
 
     /**
      * @param int $userId
-     * @param int $infoBalance
+     * @param int $userBalance
      * @param int $amountProduct
      * @return void
      */
-    final public function updateUserBalance(int $userId, int $infoBalance, int $amountProduct): void
+    final public function updateOutlayUserBalance(int $userId, int $userBalance, int $amountProduct): void
     {
-        $newBalance = $infoBalance - $amountProduct;
-        $this->userRepository->updateUserBalance($userId, $newBalance);
+        $newBalance = $userBalance - $amountProduct;
+        $this->userRepository->updateOutlayUserBalance($userId, $newBalance);
     }
 }

@@ -16,4 +16,15 @@ trait ApiResponseTrait
             'status' => $status,
         ]);
     }
+
+    /**
+     * @param array $data
+     * @return JsonResponse
+     */
+    public static function dataResponse(array $data): JsonResponse
+    {
+        return response()->json([
+            $data
+        ]);
+    }
 }
