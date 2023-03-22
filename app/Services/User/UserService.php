@@ -22,12 +22,11 @@ class UserService
      * @return int
      * @throws UserApiException
      */
-    final public function getBalance(int $sum): int
+    final public function getCheckBalance(int $sum): int
     {
         $userBalance = Auth::user()->balance;
-        $infoBalance = $userBalance >= $sum;
 
-        if (!$infoBalance) {
+        if ($userBalance < $sum) {
             throw new UserApiException(ExceptionEnum::NOT_ENOUGH_MONEY);
         }
 

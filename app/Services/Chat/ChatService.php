@@ -122,8 +122,8 @@ readonly class ChatService
     {
         $userId = Auth::id();
 
-        $amountProduct = $this->productRepository->getProduct(config('product.buy_chat'));
-        $userBalance = $this->userService->getBalance($amountProduct);
+        $amountProduct = $this->productRepository->getAmount(config('product.buy_chat'));
+        $userBalance = $this->userService->getCheckBalance($amountProduct);
         $this->checkIdParticipationGame($dto, $userId);
 
         return DB::transaction(function () use ($dto, $userId, $userBalance, $amountProduct) {
@@ -136,7 +136,7 @@ readonly class ChatService
             );
             $chatId = $this->chatRepository->chatCreate()->id;
             $this->chatParticipantRepository->chatParticipantCreate($chatId, $userId);
-            $this->chatParticipantRepository->chatParticipantCreate($chatId, $dto->selected_user_id);
+            $this->chatParticipantRepository->chatParticipantCreate($chatId, $dto->selectedUserId);
 
             return $chatId;
         });
@@ -151,13 +151,13 @@ readonly class ChatService
      */
     private function checkIdParticipationGame(StoreBuyChatDto $dto, int $userId): void
     {
-        $game = $this->gameRepository->findGameById($dto->game_id);
+        $game = $this->gameRepository->findGameById($dto->gameId);
 
         if (!$game) {
             throw new ChatApiException(ExceptionEnum::NO_ACTIVE_GAME);
         }
 
-        $infoFieldUser = GameHelper::getFieldInfoUser($game, $dto->selected_user_id);
+        $infoFieldUser = GameHelper::getFieldInfoUser($game, $dto->selectedUserId);
         $idTheSelectedUser = $game->$infoFieldUser['select_user_id'];
 
         if ($userId !== $idTheSelectedUser) {

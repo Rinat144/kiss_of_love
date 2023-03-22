@@ -36,8 +36,8 @@ class StoreBuyChatRequest extends FormRequest
     final public function getDto(): StoreBuyChatDto
     {
         return new StoreBuyChatDto(
-            selected_user_id: $this->get('selected_user_id'),
-            game_id: $this->get('game_id'),
+            selectedUserId: $this->get('selected_user_id'),
+            gameId: $this->get('game_id'),
         );
     }
 }

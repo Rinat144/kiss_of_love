@@ -21,7 +21,7 @@ class ProductRepository
      * @param int $productId
      * @return int|float
      */
-    final public function getProduct(int $productId): int|float
+    final public function getAmount(int $productId): int|float
     {
         return Product::query()
             ->where('id', '=', $productId)

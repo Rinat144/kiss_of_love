@@ -23,8 +23,6 @@ trait ApiResponseTrait
      */
     public static function dataResponse(array $data): JsonResponse
     {
-        return response()->json([
-            $data
-        ]);
+        return response()->json($data);
     }
 }

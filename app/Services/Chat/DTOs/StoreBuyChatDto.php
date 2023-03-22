@@ -5,12 +5,12 @@ namespace App\Services\Chat\DTOs;
 class StoreBuyChatDto
 {
     /**
-     * @param int $selected_user_id
-     * @param int $game_id
+     * @param int $selectedUserId
+     * @param int $gameId
      */
     public function __construct(
-        public int $selected_user_id,
-        public int $game_id,
+        public int $selectedUserId,
+        public int $gameId,
     ) {
     }
 }
