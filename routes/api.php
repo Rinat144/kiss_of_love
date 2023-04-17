@@ -7,6 +7,7 @@ use App\Http\Controllers\GameController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserAvatarController;
+use App\Http\Controllers\XsollaController;
 use Illuminate\Support\Facades\Route;
 
 Route::group([
@@ -63,4 +64,12 @@ Route::group([
     'middleware' => 'auth:api',
 ], static function () {
     Route::get('/all', [ProductController::class, 'index']);
+});
+
+Route::group([
+    'prefix' => 'xsolla',
+    'middleware' => 'auth:api',
+], static function() {
+    Route::get('/get_products', [XsollaController::class, 'getProducts']);
+    Route::post('/create_order', [XsollaController::class, 'createOrder']);
 });
