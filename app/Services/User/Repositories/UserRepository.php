@@ -17,4 +17,15 @@ class UserRepository
             ->where('id', '=', $userId)
             ->update(['balance' => $newBalance]);
     }
+
+    /**
+     * @param int $userId
+     * @return int
+     */
+    final public function getValueBalance(int $userId): int
+    {
+       return User::query()
+            ->where('id', '=', $userId)
+            ->value('balance');
+    }
 }

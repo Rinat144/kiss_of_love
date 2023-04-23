@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\Xsolla\XsollaService;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Http\Request;
 use JsonException;
 
 class XsollaController extends Controller
@@ -34,6 +35,16 @@ class XsollaController extends Controller
     final public function createOrder(): string
     {
         return $this->xsollaService->createOrder();
+    }
+
+    /**
+     * @param Request $request
+     * @return void
+     * @throws JsonException
+     */
+    final public function callback(Request $request):void
+    {
+        $this->xsollaService->callback($request);
     }
 }
 

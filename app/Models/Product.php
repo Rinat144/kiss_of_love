@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property int|mixed $discount
+ * @property mixed $name
+ * @property mixed $id
+ * @property mixed $amount
  */
 class Product extends Model
 {

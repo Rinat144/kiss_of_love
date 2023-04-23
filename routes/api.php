@@ -68,8 +68,9 @@ Route::group([
 
 Route::group([
     'prefix' => 'xsolla',
-    'middleware' => 'auth:api',
 ], static function() {
-    Route::get('/get_products', [XsollaController::class, 'getProducts']);
-    Route::post('/create_order', [XsollaController::class, 'createOrder']);
+    Route::get('/get_products', [XsollaController::class, 'getProducts'])->middleware('auth:api');
+    Route::post('/create_order', [XsollaController::class, 'createOrder'])->middleware('auth:api');
+    Route::post('/callback', [XsollaController::class, 'callback']);
 });
+

@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property mixed|string $amount_after
  * @property mixed|string $amount
  * @property mixed|string $type
+ * @property mixed $id
  */
 class Transaction extends Model
 {
