@@ -5,7 +5,6 @@ namespace App\Services\Payment\Repositories;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Services\Payment\Enum\PaymentStatusEnum;
-use Illuminate\Database\Eloquent\Model;
 
 class PaymentRepository
 {
@@ -15,27 +14,46 @@ class PaymentRepository
      * @param int $authUserId
      * @return void
      */
-    final public function store(string $orderId, Model $productData, int $authUserId): void
+    final public function store(string $orderId, Product $productData, int $authUserId): void
     {
         $payment = new Payment();
 
         $payment->user_id = $authUserId;
-        $payment->xsolla_product_id = $productData->id;
+        $payment->product_id = $productData->id;
         $payment->amount = $productData->amount;
-        $payment->status = PaymentStatusEnum::CREATED->value;
+        $payment->status = PaymentStatusEnum::CREATED;
         $payment->external_id = $orderId;
 
         $payment->save();
     }
 
     /**
-     * @param int $orderId
+     * @param Payment $payment
+     * @param PaymentStatusEnum $paymentStatusEnum
      * @return void
      */
-    final public function update(int $orderId): void
+    final public function updateStatusByPayment(Payment $payment, PaymentStatusEnum $paymentStatusEnum): void
     {
-        Payment::query()
+        $payment->status = $paymentStatusEnum;
+
+        $payment->save();
+    }
+
+    /**
+     * @param int $orderId
+     * @return Payment|null
+     */
+    final public function getPayment(int $orderId): ?Payment
+    {
+        $payment = Payment::query()
             ->where('external_id', '=', $orderId)
-            ->update(['status' => PaymentStatusEnum::PAID_FOR->value]);
+            ->select('id', 'user_id', 'product_id', 'amount', 'status')
+            ->first();
+
+        if ($payment instanceof Payment) {
+            return $payment;
+        }
+
+        return null;
     }
 }

@@ -4,7 +4,6 @@ namespace App\Services\Product\Repositories;
 
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 
 class ProductRepository
 {
@@ -31,13 +30,30 @@ class ProductRepository
 
     /**
      * @param string $nameProduct
-     * @return Model
+     * @return Product|null
      */
-    final public function getProduct(string $nameProduct): Model
+    final public function getProduct(string $nameProduct): ?Product
     {
-        return Product::query()
+        $product = Product::query()
             ->where('name', '=', $nameProduct)
             ->select('id', 'name', 'amount')
             ->first();
+
+        if ($product instanceof Product) {
+            return $product;
+        }
+
+        return null;
+    }
+
+    /**
+     * @return Collection
+     */
+    final public function getDonateProduct(): Collection
+    {
+        return Product::query()
+            ->where('is_show', '=', true)
+            ->where('donate_price', '>', 0)
+            ->get();
     }
 }

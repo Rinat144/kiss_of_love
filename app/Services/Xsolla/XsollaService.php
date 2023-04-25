@@ -2,10 +2,15 @@
 
 namespace App\Services\Xsolla;
 
+use App\Models\Product;
+use App\Services\Payment\Enum\PaymentStatusEnum;
 use App\Services\Payment\Repositories\PaymentRepository;
 use App\Services\Product\Repositories\ProductRepository;
 use App\Services\Transaction\Repositories\TransactionRepository;
 use App\Services\User\Repositories\UserRepository;
+use App\Services\User\UserService;
+use App\Services\Xsolla\Enum\ExceptionEnum;
+use App\Services\Xsolla\Exceptions\XsollaApiException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\Request;
@@ -23,6 +28,7 @@ class XsollaService
      * @param ProductRepository $productRepository
      * @param TransactionRepository $transactionRepository
      * @param UserRepository $userRepository
+     * @param UserService $userService
      * @param Client $client
      */
     public function __construct(
@@ -30,6 +36,7 @@ class XsollaService
         public ProductRepository $productRepository,
         public TransactionRepository $transactionRepository,
         public UserRepository $userRepository,
+        public UserService $userService,
         private Client $client,
     ) {
         $this->client = new Client([
@@ -38,104 +45,85 @@ class XsollaService
     }
 
     /**
-     * @return mixed
-     * @throws GuzzleException
-     * @throws JsonException
-     */
-    final public function getProducts(): mixed
-    {
-        $response = $this->client->request('GET', XsollaConfig::getItemsUrl());
-
-        return json_decode($response->getBody(), false, 512, JSON_THROW_ON_ERROR);
-    }
-
-    /**
+     * @param string $xsollaProductName
      * @return string
      * @throws GuzzleException
      * @throws JsonException
      */
-    final public function createOrder(): string
+    final public function createOrder(string $xsollaProductName): string
     {
         $data = [
-            "sandbox" => true,
-            "quantity" => 1,
-            "settings" => [
-                "ui" => [
-                    "size" => "large",
-                    "theme" => "default",
-                    "version" => "desktop",
-                    "desktop" => [
-                        "header" => [
-                            "is_visible" => true,
-                            "visible_logo" => true,
-                            "visible_name" => true,
-                            "visible_purchase" => true,
-                            "type" => "normal",
-                            "close_button" => false,
-                        ]
-                    ],
-                    "mobile" => [
-                        "footer" => [
-                            "is_visible" => true,
-                        ],
-                        "header" => [
-                            "close_button" => false,
-                        ]
-                    ]
-                ]
-            ],
-            "custom_parameters" => [
-                "user_id" => Auth::id(),
-            ]
+            "sandbox" => config('product.xsolla_test_request'),
         ];
 
         $response = $this->client->post(
-            XsollaConfig::getCreateOrderUrl(),
+            XsollaConfig::getCreateOrderUrl($xsollaProductName),
             [
                 'Bearer Token' => $this->getAuthToken(),
                 'json' => $data,
             ]
         );
 
-        $token = json_decode($response->getBody()->getContents(), false, 512, JSON_THROW_ON_ERROR);
+        $responseData = json_decode($response->getBody()->getContents(), false, 512, JSON_THROW_ON_ERROR);
 
-        $authUser = Auth::user();
-        DB::transaction(function () use ($token, $authUser) {
-            $productData = $this->productRepository->getProduct(XsollaConfig::NAME_KEY_PROJECT);  //вот здесь думаю нужно сделать, чтобы с фронта приходило название продукта
-            $this->paymentRepository->store($token->order_id, $productData, $authUser->id);
-        });
+        $authUser = Auth::id();
+        $product = $this->productRepository->getProduct($xsollaProductName);
+        assert($product instanceof Product);
 
-        return XsollaConfig::buyProduct() . $token->token;
+        $this->paymentRepository->store($responseData->order_id, $product, $authUser);
+
+        Log::channel('xsolla')->info('createOrder', [$response, $data, $responseData]);
+
+        return XsollaConfig::buyProduct() . $responseData->token;
     }
 
     /**
      * @param Request $request
      * @return void
      * @throws JsonException
+     * @throws XsollaApiException
      */
     final public function callback(Request $request): void
     {
         $authorizationKeySignature = $request->header('authorization');
         $authorizationKey = str_ireplace("Signature ", "", $authorizationKeySignature);
         $orderId = $request->post('order')['id'];
-        $nameProduct = $request->post('items')[0]['sku'];
-        $userId = $request->post('custom_parameters')['user_id'];
 
-        if (($request->post('notification_type') === self::NOTIFICATION_TYPE) && sha1(
-                json_encode($request->post(), JSON_THROW_ON_ERROR) . config('productkey.webhook_kiss_of_love')
-            ) === $authorizationKey) {
-            DB::transaction(function () use ($orderId, $nameProduct, $userId) {
-                $userBalance = $this->userRepository->getValueBalance($userId);
-                $this->paymentRepository->update($orderId);
-                $productData = $this->productRepository->getProduct($nameProduct);
-                $this->transactionRepository->storeOutlayTransaction(
-                    $userId,
-                    $productData->id,
-                    $userBalance,
-                    $productData->amount
-                );
-            });
+        if (($request->post('notification_type') === self::NOTIFICATION_TYPE) &&
+            $this->checkSignature($request) === $authorizationKey) {
+            $payment = $this->paymentRepository->getPayment($orderId);
+
+            if ($payment?->status === PaymentStatusEnum::CREATED) {
+                DB::transaction(function () use ($payment) {
+                    $this->paymentRepository->updateStatusByPayment($payment, PaymentStatusEnum::PAID_FOR);
+                    $this->userService->userAddBalance(
+                        $payment->user_id,
+                        $payment->user->balance,
+                        $payment->product->amount
+                    );
+                    $this->transactionRepository->storeInflowTransaction(
+                        $payment->user_id,
+                        $payment->product_id,
+                        $payment->user->balance,
+                        $payment->product->amount,
+                    );
+                });
+            }
+        } else {
+            throw new XsollaApiException(ExceptionEnum::INVALID_SIGNATURE_KEY);
         }
+    }
+
+    /**
+     * @param Request $request
+     * @return string
+     * @throws JsonException
+     */
+    private function checkSignature(Request $request): string
+    {
+        return sha1(
+            json_encode($request->post(), JSON_THROW_ON_ERROR) . config('product.webhook_kiss_of_love')
+        );
     }
 
     /**
@@ -147,7 +135,7 @@ class XsollaService
     {
         $data = [
             'settings' => [
-                'project_id' => XsollaConfig::PROJECT_ID,
+                'project_id' => (int)config('product.project_id'),
                 'currency' => 'RUB',
                 'language' => 'ru',
                 'ui' => [
@@ -163,13 +151,13 @@ class XsollaService
         $response = $this->client->post(
             XsollaConfig::getAuthUrl(),
             [
-                'auth' => [XsollaConfig::MERCHANT_ID, config('productkey.api_key_kiss_of_love')],
+                'auth' => [config('product.merchant_id'), config('product.api_key_kiss_of_love')],
                 'json' => $data,
             ]
         );
 
         $arrayResponse = json_decode($response->getBody()->getContents(), false, 512, JSON_THROW_ON_ERROR);
-        Log::info('getAuthToken', [$response, $data, $arrayResponse]);
+        Log::channel('xsolla')->info('getAuthToken', [$response, $data, $arrayResponse]);
 
         return $arrayResponse;
     }

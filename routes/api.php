@@ -64,12 +64,12 @@ Route::group([
     'middleware' => 'auth:api',
 ], static function () {
     Route::get('/all', [ProductController::class, 'index']);
+    Route::get('/donate', [ProductController::class, 'getDonateProduct']);
 });
 
 Route::group([
     'prefix' => 'xsolla',
-], static function() {
-    Route::get('/get_products', [XsollaController::class, 'getProducts'])->middleware('auth:api');
+], static function () {
     Route::post('/create_order', [XsollaController::class, 'createOrder'])->middleware('auth:api');
     Route::post('/callback', [XsollaController::class, 'callback']);
 });

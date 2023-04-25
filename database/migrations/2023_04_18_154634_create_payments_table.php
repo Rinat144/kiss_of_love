@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::create('payments', static function (Blueprint $table) {
             $table->id();
             $table->integer('user_id');
-            $table->integer('xsolla_product_id');
+            $table->integer('product_id');
             $table->float('amount');
             $table->enum('status', array_column(PaymentStatusEnum::cases(), 'value'));
             $table->integer('external_id');

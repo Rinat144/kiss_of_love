@@ -4,32 +4,23 @@ namespace App\Services\Xsolla;
 
 class XsollaConfig
 {
-    public const PROJECT_ID = 216821;
-    public const MERCHANT_ID = 401720;
-    public const NAME_KEY_PROJECT = 'product_by_chat_4';
-
-    /**
-     * @return string
-     */
-    public static function getItemsUrl(): string
-    {
-        return 'https://store.xsolla.com/api/v2/project/' . self::PROJECT_ID . '/items/virtual_items';
-    }
-
     /**
      * @return string
      */
     public static function getAuthUrl(): string
     {
-        return 'https://api.xsolla.com/merchant/v2/merchants/' . self::MERCHANT_ID . '/token';
+        return 'https://api.xsolla.com/merchant/v2/merchants/' . config('product.merchant_id') . '/token';
     }
 
     /**
+     * @param string $xsollaProductName
      * @return string
      */
-    public static function getCreateOrderUrl(): string
+    public static function getCreateOrderUrl(string $xsollaProductName): string
     {
-        return 'https://store.xsolla.com/api/v2/project/'.self::PROJECT_ID.'/payment/item/' . self::NAME_KEY_PROJECT;
+        return 'https://store.xsolla.com/api/v2/project/' . config(
+                'product.project_id'
+            ) . '/payment/item/' . $xsollaProductName;
     }
 
     /**

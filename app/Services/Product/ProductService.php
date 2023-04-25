@@ -22,4 +22,12 @@ class ProductService
     {
         return $this->productRepository->index();
     }
+
+    /**
+     * @return Collection
+     */
+    final public function getDonateProduct(): Collection
+    {
+        return $this->productRepository->getDonateProduct();
+    }
 }
