@@ -5,6 +5,7 @@ namespace App\Services\Payment\Repositories;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Services\Payment\Enum\PaymentStatusEnum;
+use Illuminate\Database\Eloquent\Builder;
 
 class PaymentRepository
 {
@@ -43,7 +44,7 @@ class PaymentRepository
      * @param int $orderId
      * @return Payment|null
      */
-    final public function getPayment(int $orderId): ?Payment
+    final public function getPaymentByOrderId(int $orderId): ?Payment
     {
         $payment = Payment::query()
             ->where('external_id', '=', $orderId)
@@ -55,5 +56,26 @@ class PaymentRepository
         }
 
         return null;
+    }
+
+    /**
+     * @param int $authUserId
+     * @return Builder
+     */
+    final public function getBuilderPurchasedProducts(int $authUserId): Builder
+    {
+        return Payment::query()
+            ->where('user_id', '=', $authUserId)
+            ->where('status', '=', PaymentStatusEnum::PAID_FOR)
+            ->groupBy('payments.id', 'payments.user_id');
+    }
+
+    /**
+     * @param Builder $builder
+     * @return void
+     */
+    final public function updateStatusPurchasedProducts(Builder $builder): void
+    {
+        $builder->update(['status' => PaymentStatusEnum::RECEIVED]);
     }
 }

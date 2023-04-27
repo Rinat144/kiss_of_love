@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\Product\ProductService;
 use App\Services\Product\Resources\ProductDonateResource;
 use App\Services\Product\Resources\ProductIndexResource;
+use App\Services\Product\Resources\ProductsPurchasedResource;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ProductController extends Controller
@@ -30,10 +31,20 @@ class ProductController extends Controller
     /**
      * @return AnonymousResourceCollection
      */
-    final public function getDonateProduct(): AnonymousResourceCollection
+    final public function getDonateProducts(): AnonymousResourceCollection
     {
-        $donateProducts = $this->productService->getDonateProduct();
+        $donateProducts = $this->productService->getDonateProducts();
 
         return ProductDonateResource::collection($donateProducts);
+    }
+
+    /**
+     * @return AnonymousResourceCollection
+     */
+    final public function getPurchasedProducts(): AnonymousResourceCollection
+    {
+        $purchasedProducts = $this->productService->getPurchasedProducts();
+
+        return ProductsPurchasedResource::collection($purchasedProducts);
     }
 }

@@ -127,7 +127,7 @@ readonly class ChatService
         $this->checkIdParticipationGame($dto, $userId);
 
         return DB::transaction(function () use ($dto, $userId, $userBalance, $amountProduct) {
-            $this->userService->deductUserBalance($userId, $userBalance, $amountProduct);
+            $this->userService->userDeductBalance($userId, $userBalance, $amountProduct);
             $this->transactionRepository->storeOutlayTransaction(
                 $userId,
                 config('product.buy_chat'),

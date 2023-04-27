@@ -39,7 +39,7 @@ class UserService
      * @param int $amountProduct
      * @return void
      */
-    final public function deductUserBalance(int $userId, int $userBalance, int $amountProduct): void
+    final public function userDeductBalance(int $userId, int $userBalance, int $amountProduct): void
     {
         $newBalance = $userBalance - $amountProduct;
         $this->userRepository->updateUserBalance($userId, $newBalance);

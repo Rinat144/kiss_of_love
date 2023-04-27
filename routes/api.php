@@ -64,7 +64,8 @@ Route::group([
     'middleware' => 'auth:api',
 ], static function () {
     Route::get('/all', [ProductController::class, 'index']);
-    Route::get('/donate', [ProductController::class, 'getDonateProduct']);
+    Route::get('/donate', [ProductController::class, 'getDonateProducts']);
+    Route::get('/purchased', [ProductController::class, 'getPurchasedProducts']);
 });
 
 Route::group([

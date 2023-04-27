@@ -3,6 +3,7 @@
 namespace App\Services\Product\Repositories;
 
 use App\Models\Product;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 class ProductRepository
@@ -49,11 +50,25 @@ class ProductRepository
     /**
      * @return Collection
      */
-    final public function getDonateProduct(): Collection
+    final public function getDonateProducts(): Collection
     {
         return Product::query()
             ->where('is_show', '=', true)
             ->where('donate_price', '>', 0)
+            ->get();
+    }
+
+    /**
+     * @param Builder $builder
+     * @return Collection
+     */
+    final public function getPurchasedProducts(Builder $builder): Collection
+    {
+        return Product::query()
+            ->joinSub($builder, 'payments', function ($join) {
+                $join->on('products.id', '=', 'payments.product_id');
+            })
+            ->select('products.id', 'products.name', 'payments.created_at')
             ->get();
     }
 }

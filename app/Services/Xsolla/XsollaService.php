@@ -11,6 +11,7 @@ use App\Services\User\Repositories\UserRepository;
 use App\Services\User\UserService;
 use App\Services\Xsolla\Enum\ExceptionEnum;
 use App\Services\Xsolla\Exceptions\XsollaApiException;
+use App\Support\LogChannelEnum;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\Request;
@@ -53,7 +54,7 @@ class XsollaService
     final public function createOrder(string $xsollaProductName): string
     {
         $data = [
-            "sandbox" => config('product.xsolla_test_request'),
+            "sandbox" => config('product.xsolla_sandbox'),
         ];
 
         $response = $this->client->post(
@@ -72,7 +73,7 @@ class XsollaService
 
         $this->paymentRepository->store($responseData->order_id, $product, $authUser);
 
-        Log::channel('xsolla')->info('createOrder', [$response, $data, $responseData]);
+        Log::channel(LogChannelEnum::XSOLLA->value)->info('createOrder', [$response, $data, $responseData]);
 
         return XsollaConfig::buyProduct() . $responseData->token;
     }
@@ -89,9 +90,9 @@ class XsollaService
         $authorizationKey = str_ireplace("Signature ", "", $authorizationKeySignature);
         $orderId = $request->post('order')['id'];
 
-        if (($request->post('notification_type') === self::NOTIFICATION_TYPE) &&
-            $this->checkSignature($request) === $authorizationKey) {
-            $payment = $this->paymentRepository->getPayment($orderId);
+        if (($request->post('notification_type') === self::NOTIFICATION_TYPE)) {
+            $this->checkSignature($request, $authorizationKey);
+            $payment = $this->paymentRepository->getPaymentByOrderId($orderId);
 
             if ($payment?->status === PaymentStatusEnum::CREATED) {
                 DB::transaction(function () use ($payment) {
@@ -116,14 +117,18 @@ class XsollaService
 
     /**
      * @param Request $request
-     * @return string
+     * @param string $authorizationKey
+     * @return void
      * @throws JsonException
+     * @throws XsollaApiException
      */
-    private function checkSignature(Request $request): string
+    private function checkSignature(Request $request, string $authorizationKey): void
     {
-        return sha1(
-            json_encode($request->post(), JSON_THROW_ON_ERROR) . config('product.webhook_kiss_of_love')
-        );
+        if (sha1(
+                json_encode($request->post(), JSON_THROW_ON_ERROR) . config('product.webhook_kiss_of_love')
+            ) !== $authorizationKey) {
+            throw new XsollaApiException(ExceptionEnum::INVALID_SIGNATURE_KEY);
+        }
     }
 
     /**
@@ -157,7 +162,7 @@ class XsollaService
         );
 
         $arrayResponse = json_decode($response->getBody()->getContents(), false, 512, JSON_THROW_ON_ERROR);
-        Log::channel('xsolla')->info('getAuthToken', [$response, $data, $arrayResponse]);
+        Log::channel(LogChannelEnum::XSOLLA->value)->info('getAuthToken', [$response, $data, $arrayResponse]);
 
         return $arrayResponse;
     }
