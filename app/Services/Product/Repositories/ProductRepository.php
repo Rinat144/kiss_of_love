@@ -68,7 +68,7 @@ class ProductRepository
             ->joinSub($builder, 'payments', function ($join) {
                 $join->on('products.id', '=', 'payments.product_id');
             })
-            ->select('products.id', 'products.name', 'payments.created_at')
+            ->select('products.id', 'products.name', 'products.amount', 'payments.created_at')
             ->get();
     }
 }

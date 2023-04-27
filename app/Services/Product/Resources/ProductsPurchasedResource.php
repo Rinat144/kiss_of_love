@@ -9,6 +9,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $id
  * @property mixed $name
  * @property mixed $created_at
+ * @property mixed $amount
  */
 class ProductsPurchasedResource extends JsonResource
 {
@@ -23,6 +24,7 @@ class ProductsPurchasedResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'amount' => $this->amount,
             'created_at' => $this->created_at,
         ];
     }
