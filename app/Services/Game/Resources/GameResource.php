@@ -35,21 +35,25 @@ class GameResource extends JsonResource
     final public function toArray($request): array|JsonSerializable|Arrayable
     {
         return [
-            'id' => $this->id,
-            'first_user_id' => $this->first_user_id,
-            'second_user_id' => $this->second_user_id,
-            'third_user_id' => $this->third_user_id,
-            'fourth_user_id' => $this->fourth_user_id,
-            'fifth_user_id' => $this->fifth_user_id,
-            'sixth_user_id' => $this->sixth_user_id,
-            'first_user_info' => $this->first_user_info,
-            'second_user_info' => $this->second_user_info,
-            'third_user_info' => $this->third_user_info,
-            'fourth_user_info' => $this->fourth_user_info,
-            'fifth_user_info' => $this->fifth_user_info,
-            'sixth_user_info' => $this->sixth_user_info,
-            'status' => $this->status,
-            'created_at' => $this->created_at,
+            "code" => 200,
+            "message" => "ok",
+            "data" => [
+                'id' => $this->id,
+                'first_user_id' => $this->first_user_id,
+                'second_user_id' => $this->second_user_id,
+                'third_user_id' => $this->third_user_id,
+                'fourth_user_id' => $this->fourth_user_id,
+                'fifth_user_id' => $this->fifth_user_id,
+                'sixth_user_id' => $this->sixth_user_id,
+                'first_user_info' => $this->first_user_info,
+                'second_user_info' => $this->second_user_info,
+                'third_user_info' => $this->third_user_info,
+                'fourth_user_info' => $this->fourth_user_info,
+                'fifth_user_info' => $this->fifth_user_info,
+                'sixth_user_info' => $this->sixth_user_info,
+                'status' => $this->status,
+                'created_at' => $this->created_at,
+            ],
         ];
     }
 }

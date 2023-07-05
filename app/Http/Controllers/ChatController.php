@@ -34,20 +34,29 @@ class ChatController extends Controller
         $chatId = $this->chatService->chatCreate($chatCreateRequest['game_id']);
 
         return response()->json([
-            'chat_id' => $chatId
+            "code" => 200,
+            "message" => "ok",
+            "data" => [
+                'chat_id' => $chatId
+            ],
         ]);
     }
 
+
     /**
      * @param int $chatId
-     * @return AnonymousResourceCollection
+     * @return array
      * @throws ChatApiException
      */
-    final public function getSpecificChat(int $chatId): AnonymousResourceCollection
+    final public function getSpecificChat(int $chatId): array
     {
         $chat = $this->chatService->getSpecificChat($chatId);
 
-        return ChatSpecificResource::collection($chat);
+        return [
+            "code" => 200,
+            "message" => "ok",
+            "data" => ChatSpecificResource::collection($chat)
+        ];
     }
 
     /**
@@ -58,7 +67,11 @@ class ChatController extends Controller
         $chats = $this->chatService->getAllChats();
 
         return response()->json([
-            $chats,
+            "code" => 200,
+            "message" => "ok",
+            "data" => [
+                $chats
+            ],
         ]);
     }
 
