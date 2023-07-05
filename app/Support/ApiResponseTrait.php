@@ -13,7 +13,11 @@ trait ApiResponseTrait
     public static function statusResponse(bool $status): JsonResponse
     {
         return response()->json([
-            'status' => $status,
+            "code" => 200,
+            "message" => "ok",
+            "data" => [
+                'status' => $status,
+            ]
         ]);
     }
 
@@ -23,6 +27,10 @@ trait ApiResponseTrait
      */
     public static function dataResponse(array $data): JsonResponse
     {
-        return response()->json($data);
+        return response()->json([
+            "code" => 200,
+            "message" => "ok",
+            "data" => $data,
+        ]);
     }
 }

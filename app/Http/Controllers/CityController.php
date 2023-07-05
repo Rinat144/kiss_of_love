@@ -17,12 +17,16 @@ class CityController extends Controller
     }
 
     /**
-     * @return AnonymousResourceCollection
+     * @return array
      */
-    final public function getAllCities(): AnonymousResourceCollection
+    final public function getAllCities(): array
     {
         $allCities = $this->cityService->getAllCities();
 
-        return CityResource::collection($allCities);
+        return [
+            "code" => 200,
+            "message" => "ok",
+            "data" => CityResource::collection($allCities)
+        ];
     }
 }

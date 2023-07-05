@@ -20,11 +20,11 @@ class ChatSpecificResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  Request  $request
+     * @param Request $request
      * @return array|Arrayable|JsonSerializable
      */
-   final public function toArray($request): array|JsonSerializable|Arrayable
-   {
+    final public function toArray($request): array|JsonSerializable|Arrayable
+    {
         return [
             'id' => $this->id,
             'chat_id' => $this->chat_id,

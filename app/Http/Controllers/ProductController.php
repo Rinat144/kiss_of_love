@@ -19,32 +19,44 @@ class ProductController extends Controller
     }
 
     /**
-     * @return AnonymousResourceCollection
+     * @return array
      */
-    final public function index(): AnonymousResourceCollection
+    final public function index(): array
     {
         $allProducts = $this->productService->index();
 
-        return ProductIndexResource::collection($allProducts);
+        return [
+            "code" => 200,
+            "message" => "ok",
+            "data" => ProductIndexResource::collection($allProducts)
+        ];
     }
 
     /**
-     * @return AnonymousResourceCollection
+     * @return array
      */
-    final public function getDonateProducts(): AnonymousResourceCollection
+    final public function getDonateProducts(): array
     {
         $donateProducts = $this->productService->getDonateProducts();
 
-        return ProductDonateResource::collection($donateProducts);
+        return [
+            "code" => 200,
+            "message" => "ok",
+            "data" => ProductDonateResource::collection($donateProducts)
+        ];
     }
 
     /**
-     * @return AnonymousResourceCollection
+     * @return array
      */
-    final public function getPurchasedProducts(): AnonymousResourceCollection
+    final public function getPurchasedProducts(): array
     {
         $purchasedProducts = $this->productService->getPurchasedProducts();
 
-        return ProductsPurchasedResource::collection($purchasedProducts);
+        return [
+            "code" => 200,
+            "message" => "ok",
+            "data" => ProductsPurchasedResource::collection($purchasedProducts)
+        ];
     }
 }

@@ -45,12 +45,16 @@ class UserAvatarController extends Controller
 
     /**
      * @param int $userId
-     * @return AnonymousResourceCollection
+     * @return array
      */
-    final public function index(int $userId): AnonymousResourceCollection
+    final public function index(int $userId): array
     {
         $dataUserAvatar = $this->userAvatarService->index($userId);
 
-        return UserAvatarAllResource::collection($dataUserAvatar);
+        return [
+            "code" => 200,
+            "message" => "ok",
+            "data" => UserAvatarAllResource::collection($dataUserAvatar)
+        ];
     }
 }

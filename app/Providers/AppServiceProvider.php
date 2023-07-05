@@ -2,6 +2,12 @@
 
 namespace App\Providers;
 
+use App\Services\Chat\Resources\ChatSpecificResource;
+use App\Services\City\Resources\CityResource;
+use App\Services\Product\Resources\ProductDonateResource;
+use App\Services\Product\Resources\ProductIndexResource;
+use App\Services\Product\Resources\ProductsPurchasedResource;
+use App\Services\UserAvatar\Resources\UserAvatarAllResource;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -11,7 +17,7 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
+    final public function register(): void
     {
         //
     }
@@ -21,8 +27,15 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    final public function boot(): void
     {
-        //
+        ChatSpecificResource::withoutWrapping();
+        CityResource::withoutWrapping();
+        ProductsPurchasedResource::withoutWrapping();
+        ProductDonateResource::withoutWrapping();
+        ProductIndexResource::withoutWrapping();
+        UserAvatarAllResource::withoutWrapping();
+        ProductDonateResource::withoutWrapping();
+        ProductsPurchasedResource::withoutWrapping();
     }
 }
