@@ -24,8 +24,8 @@ class LoginRequest extends FormRequest
     final public function rules(): array
     {
         return [
-            'login' => ['required', 'string', 'min:8', 'max:32'],
-            'password' => ['required', 'string', 'min:6', 'max:120'],
+            'social_user_id' => ['required', 'string', 'min:8', 'max:32'],
+            'api_key' => ['required', 'string', 'min:6', 'max:120'],
         ];
     }
 }

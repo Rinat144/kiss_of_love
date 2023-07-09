@@ -17,8 +17,7 @@ readonly class AuthService
      */
     public function __construct(
         private AuthRepository $authRepository
-    )
-    {
+    ) {
     }
 
     /**
@@ -37,7 +36,12 @@ readonly class AuthService
      */
     final public function login(LoginRequest $loginRequest): string
     {
-        if (!$token = Auth::attempt($loginRequest->validated())) {
+        if (!$token = Auth::attempt(
+            [
+                'login' => $loginRequest->validated()['social_user_id'],
+                'password' => $loginRequest->validated()['api_key']
+            ]
+        )) {
             throw new AuthenticationException();
         }
 
