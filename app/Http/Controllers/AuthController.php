@@ -10,15 +10,12 @@ use Illuminate\Http\JsonResponse;
 
 class AuthController extends Controller
 {
-    private const TOKEN_EXPIRATION_TIME = 60;
-
     /**
      * @param AuthService $authService
      */
     public function __construct(
         private readonly AuthService $authService
-    )
-    {
+    ) {
         $this->middleware('auth:api', ['except' => ['login', 'register']]);
     }
 
@@ -30,8 +27,13 @@ class AuthController extends Controller
     final public function login(LoginRequest $loginRequest): JsonResponse
     {
         $tokenData = $this->authService->login($loginRequest);
-
-        return $this->createNewToken($tokenData);
+        return response()->json([
+            "code" => 200,
+            "message" => "ok",
+            "data" => [
+                $this->createNewToken($tokenData)
+            ],
+        ]);
     }
 
     /**
@@ -43,8 +45,10 @@ class AuthController extends Controller
         $this->authService->register($authRequest->getDto());
 
         return response()->json([
-            'status' => true
-        ], 201);
+            "code" => 200,
+            "message" => "ok",
+            "data" => [],
+        ]);
     }
 
     /**
@@ -90,7 +94,7 @@ class AuthController extends Controller
         return response()->json([
             'access_token' => $tokenData,
             'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * self::TOKEN_EXPIRATION_TIME,
+            'expires_in' => 0,
             'user' => auth()->user()
         ]);
     }
